@@ -1,0 +1,34 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+
+[packages]
+# Core Impresso library
+impresso-cookbook = {editable = true, path = "./cookbook/lib", version="1.0.3"}
+
+# Configuration and environment
+python-dotenv = "*"  # Load environment variables from .env files
+
+# HTTP and file handling
+requests = "*"  # HTTP library for making API requests
+smart-open = {extras = ["s3","http"], version = "==6.4"}  # Unified file I/O for local and cloud storage
+
+# Cloud services
+boto3 = "==1.35.95"  # AWS SDK for Python
+
+# Data validation
+check-jsonschema = "*"  # JSON schema validation
+
+# Package management
+pipenv = "*"  # Python dependency management
+
+
+[dev-packages]
+# Jupyter development
+ipykernel = "*"  # Jupyter kernel for Python
+
+
+[requires]
+python_version = "3.11"

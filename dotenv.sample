@@ -1,0 +1,6 @@
+# Set the values accordingly
+# store as `.env` file
+SE_ACCESS_KEY=<YOUR VALUE>
+SE_SECRET_KEY=<YOUR VALUE>
+# create python venv inside the project
+PIPENV_VENV_IN_PROJECT=enabled
