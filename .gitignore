@@ -30,3 +30,5 @@ lib/*_myprocessing.py
 Makefile.myprocessing
 .DS_Store
 Pipfile.lock
+*/__pycache__output.jsonl
+output.jsonl
