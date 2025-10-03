@@ -283,7 +283,7 @@ def main():
 
             # Also treat Promotion, Information/Explanation and Other as ads
             # Maybe could just loosen threshold instead of forcing to count as ad
-            if top_label in ["Promotion", "Information/Explanation", "Other"]:
+            if top_label in ["Promotion"]:
                 final_prob = max(final_prob, thr)
 
             is_ad_pred = bool(final_prob >= thr)
