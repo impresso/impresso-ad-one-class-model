@@ -275,17 +275,43 @@ def main():
                 final_prob = 0.5*promo_prob + 0.5*meta_prob  # simple blend; adjust if desired
             else:
                 final_prob = promo_prob
-
-            # rule-upweighting for strong cues (only if not using a trained meta)
-            rule_hit = flags["has_price"] or flags["has_phone"] or flags["has_cue"]
-            if meta_clf is None and rule_hit and final_prob < thr:
-                final_prob = max(final_prob, thr)  # push to threshold if strong rule present
-
-            # Also treat Promotion, Information/Explanation and Other as ads
-            # Maybe could just loosen threshold instead of forcing to count as ad
+            
+            # Original rule scoring - keeping it simple
+            rule_score = (
+                1.0 * float(flags["has_price"])
+                + 1.0 * float(flags["has_phone"])
+                + 0.7 * float(flags["has_cue"])
+                + 0.4 * float(flags["has_area"])
+                + 0.4 * float(flags["has_rooms"])
+                + 0.3 * float(flags["has_address"])
+            )
+            rule_hit = rule_score >= 0.5
+            
+            # Confidence-based approach
+            model_confidence = abs(promo_prob - 0.5) * 2  # Scale 0-1, higher means more confident
+            
+            # Balance rule influence based on model confidence
+            if meta_clf is None:
+                if rule_hit and final_prob < thr:
+                    # Apply gentler boost when model is confident it's not an ad
+                    if promo_prob < 0.3 and model_confidence > 0.4:
+                        # Model is confident it's not an ad, apply minimal boost
+                        boost = min(0.15, (thr - final_prob) * 0.3)
+                    else:
+                        # Standard boost approach - adjusted to be less aggressive
+                        gap = thr - final_prob
+                        boost = gap * 0.4  # Less aggressive boost than before
+                    
+                    final_prob += boost
+                    final_prob = min(final_prob, thr * 0.98)  # Don't quite reach threshold
+            
+            # Only apply promotion label boost when we're already close
             if top_label in ["Promotion"]:
-                final_prob = max(final_prob, thr)
-
+                if final_prob > (thr * 0.8):
+                    final_prob = max(final_prob, thr)
+                else:
+                    final_prob = max(final_prob, final_prob * 1.15)  # Small boost
+                    
             is_ad_pred = bool(final_prob >= thr)
 
             meta_out = dict(meta)
@@ -297,6 +323,7 @@ def main():
             # attach diagnostics
             meta_out.update(flags)
             meta_out["rule_hit"] = rule_hit
+            meta_out["rule_score"] = round(rule_score, 3)
             meta_out["threshold_used"] = thr
             out_rows.append(meta_out)
 
