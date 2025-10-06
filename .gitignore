@@ -32,3 +32,11 @@ Makefile.myprocessing
 Pipfile.lock
 */__pycache__output.jsonl
 output.jsonl
+models/
+results/
+artifacts/
+
+
+
+all_ads_ids.jsonl
+non-ads-stuff/non_ad_articles.jsonl

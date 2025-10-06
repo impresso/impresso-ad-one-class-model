@@ -59,7 +59,18 @@ def read_jsonl(p):
 def write_jsonl(p, rows):
     with open(p, "w", encoding="utf-8") as f:
         for r in rows:
-            f.write(json.dumps(r, ensure_ascii=False) + "\n")
+            # Convert numpy types to Python types for JSON serialization
+            clean_row = {}
+            for k, v in r.items():
+                if isinstance(v, (np.float32, np.float64)):
+                    clean_row[k] = float(v)
+                elif isinstance(v, (np.int32, np.int64)):
+                    clean_row[k] = int(v)
+                elif isinstance(v, np.bool_):
+                    clean_row[k] = bool(v)
+                else:
+                    clean_row[k] = v
+            f.write(json.dumps(clean_row, ensure_ascii=False) + "\n")
 
 def chunk_words(text: str, max_words: int):
     if max_words <= 0:
@@ -86,8 +97,8 @@ def normalize_text(t: str) -> str:
 # ----------------------------
 PHONE = re.compile(r"(?:\+?\d{2,3}[\s./-]?)?(?:\(?0\d{1,3}\)?[\s./-]?)\d(?:[\d\s./-]{5,})")
 PRICE = re.compile(
-    r"(?:CHF|SFr\.?|Fr\.?|fr\.?|€|\$)\s?\d{1,3}(?:[’'`\s]?\d{3})*(?:\.-|[.-])?"
-    r"|(?:\d{1,3}(?:[’'`\s]?\d{3})*)(?:\s?(?:CHF|SFr\.?|Fr\.?|€|\$))(?:\.-|[.-])?",
+    r"(?:CHF|SFr\.?|Fr\.?|fr\.?|€|\$|USD|EUR)\s?\d{1,4}(?:[''`\s\.,]?\d{3})*(?:\.-|[.-]|'-)?"
+    r"|(?:\d{1,4}(?:[''`\s\.,]?\d{3})*)(?:\s?(?:CHF|SFr\.?|Fr\.?|€|\$|USD|EUR))(?:\.-|[.-]|'-)?",
     re.I
 )
 AREA = re.compile(r"\b\d{2,4}\s?m(?:²|2)\b")
@@ -97,9 +108,9 @@ YEAR = re.compile(r"\b(19|20)\d{2}\b")
 ZIP_CH = re.compile(r"\b\d{4}\b")
 ADDRESS = re.compile(r"\b(Rue|Av\.?|Avenue|Platz|Str\.?|Strasse|Grand’Rue|Place)\b", re.I)
 
-CUES_FR = r"(?:à\s?vendre|a\s?vendre|à\s?louer|a\s?louer|à\s?remettre|prix\s+à\s+discuter|écrire\s+à|sous\s+chiffres|tél\.?|loyer|charges|villa|attique|expertisée)"
-CUES_DE = r"(?:zu\s?verkaufen|zu\s?vermieten|Preis|Schreib(?:en)?\s+an|unter\s+Chiffre|Tel\.?|Miete|Zimmer|Attika|expertisiert)"
-CUES_LB = r"(?:ze\s?verkafen|ze\s?verlounen|Präis|Annonce|Tel\.?)"
+CUES_FR = r"(?:à\s?vendre|a\s?vendre|à\s?louer|a\s?louer|à\s?remettre|prix\s+à\s+discuter|écrire\s+à|sous\s+chiffres|tél\.?|téléphone|loyer|charges|villa|attique|expertisée|contact|offre|demande|urgent|occasion|affaire)"
+CUES_DE = r"(?:zu\s?verkaufen|zu\s?vermieten|Preis|Schreib(?:en)?\s+an|unter\s+Chiffre|Tel\.?|Telefon|Miete|Zimmer|Attika|expertisiert|Kontakt|Angebot|dringend|Gelegenheit)"
+CUES_LB = r"(?:ze\s?verkafen|ze\s?verlounen|Präis|Annonce|Tel\.?|Telefon|Kontakt)"
 CUES = re.compile(fr"\b(?:{CUES_FR}|{CUES_DE}|{CUES_LB})\b", re.I)
 
 def rule_flags(t):
@@ -116,6 +127,121 @@ def rule_flags(t):
         "len_words": len(t.split()),
         "pct_digits": (sum(ch.isdigit() for ch in t) / max(len(t),1)),
     }
+
+def calculate_rule_score_and_confidence(flags):
+    """Calculate rule score with balanced weights and better confidence measure"""
+    # More balanced rule weights - not as aggressive
+    rule_score = (
+        2.0 * float(flags["has_price"])      # Strong indicator
+        + 2.0 * float(flags["has_phone"])    # Strong indicator  
+        + 1.5 * float(flags["has_cue"])      # Medium-strong indicator
+        + 1.0 * float(flags["has_area"])     # Medium indicator
+        + 1.0 * float(flags["has_rooms"])    # Medium indicator
+        + 0.8 * float(flags["has_address"])  # Medium indicator
+        + 0.5 * float(flags["has_zip"])      # Weak indicator
+        + 0.3 * float(flags["has_year"])     # Weak indicator
+        + 0.3 * float(flags["has_km"])       # Weak indicator
+    )
+    
+    # Calculate rule confidence based on number and strength of indicators
+    strong_indicators = flags["has_price"] + flags["has_phone"]
+    medium_indicators = flags["has_cue"] + flags["has_area"] + flags["has_rooms"]
+    weak_indicators = flags["has_address"] + flags["has_zip"] + flags["has_year"] + flags["has_km"]
+    
+    # More conservative rule confidence calculation
+    rule_confidence = min(1.0, (strong_indicators * 0.4 + medium_indicators * 0.2 + weak_indicators * 0.1))
+    
+    return rule_score, rule_confidence
+
+def is_likely_non_ad_content(flags, text_norm, top_label):
+    """Enhanced non-ad detection with more patterns"""
+    text_lower = text_norm.lower()
+    
+    # Expanded non-ad indicators
+    news_patterns = ["communiqué", "annonce officielle", "avis", "décès", "funeral", "obituary", "mort", "died", "nécrologie"]
+    official_patterns = ["commune", "municipalité", "conseil", "administration", "canton", "état", "préfecture", "mairie"]
+    event_patterns = ["concert", "festival", "exposition", "conférence", "meeting", "assemblée", "spectacle", "théâtre"]
+    legal_patterns = ["ordonnance", "jugement", "tribunal", "procès", "avocat", "notaire", "succession"]
+    
+    # Check for non-ad patterns
+    has_news_pattern = any(pattern in text_lower for pattern in news_patterns)
+    has_official_pattern = any(pattern in text_lower for pattern in official_patterns)
+    has_event_pattern = any(pattern in text_lower for pattern in event_patterns)
+    has_legal_pattern = any(pattern in text_lower for pattern in legal_patterns)
+    
+    # Non-promotion top labels that should be treated carefully
+    careful_labels = ["News", "Obituary", "Official", "Legal", "Academic", "Literature", "Editorial"]
+    is_careful_label = top_label in careful_labels
+    
+    # Very short texts with minimal ad indicators might be false positives
+    is_very_short = flags["len_words"] < 12
+    has_minimal_indicators = (flags["has_price"] + flags["has_phone"] + flags["has_cue"]) == 0
+    
+    return {
+        "has_news_pattern": has_news_pattern,
+        "has_official_pattern": has_official_pattern, 
+        "has_event_pattern": has_event_pattern,
+        "has_legal_pattern": has_legal_pattern,
+        "is_careful_label": is_careful_label,
+        "is_suspicious_short": is_very_short and has_minimal_indicators,
+        "non_ad_confidence": min(1.0, sum([has_news_pattern, has_official_pattern, has_event_pattern, has_legal_pattern]) * 0.3 + (0.5 if is_careful_label else 0))
+    }
+
+def calculate_ensemble_ad_signal(promo_prob, top_label, all_probs, id2label):
+    """Calculate additional signal from other genre predictions"""
+    # Labels that might indicate commercial content
+    commercial_labels = ["Promotion", "Advertisement", "Commercial", "Classified"]
+    business_labels = ["Business", "Economic", "Financial"]
+    
+    commercial_prob = 0.0
+    business_prob = 0.0
+    
+    for idx, prob in enumerate(all_probs):
+        label = id2label.get(idx, "")
+        if any(cl.lower() in label.lower() for cl in commercial_labels):
+            commercial_prob += prob
+        elif any(bl.lower() in label.lower() for bl in business_labels):
+            business_prob += prob * 0.3  # Weaker signal
+    
+    # Ensemble signal combining multiple indicators
+    ensemble_signal = min(1.0, commercial_prob + business_prob)
+    return ensemble_signal
+
+def get_adaptive_threshold_adjustment(flags, text_norm, base_thr):
+    """Adjust threshold based on text characteristics"""
+    text_lower = text_norm.lower()
+    
+    # Text length categories
+    word_count = flags["len_words"]
+    if word_count < 10:
+        length_factor = 1.1  # Raise threshold for very short texts
+    elif word_count < 25:
+        length_factor = 1.05  # Slightly raise for short texts
+    elif word_count > 100:
+        length_factor = 0.95  # Lower for longer ads
+    else:
+        length_factor = 1.0
+    
+    # Digit density - ads often have more numbers
+    digit_density = flags["pct_digits"]
+    if digit_density > 0.15:
+        digit_factor = 0.92  # Lower threshold for number-heavy texts
+    elif digit_density > 0.08:
+        digit_factor = 0.96
+    else:
+        digit_factor = 1.0
+    
+    # Punctuation patterns that suggest ads
+    has_contact_pattern = bool(re.search(r"[:\-]\s*\d|contact\s*[:@]|\b\d+[-.\s]\d+[-.\s]\d+", text_lower))
+    contact_factor = 0.94 if has_contact_pattern else 1.0
+    
+    # Multiple currency/price mentions
+    price_mentions = len(re.findall(r"(?:CHF|Fr\.?|€|\$|\d+\s*.-)", text_norm, re.I))
+    price_factor = max(0.88, 1.0 - (price_mentions * 0.04)) if price_mentions > 1 else 1.0
+    
+    # Combined adjustment
+    adjustment = length_factor * digit_factor * contact_factor * price_factor
+    return base_thr * adjustment
 
 # ----------------------------
 # Thresholding helpers
@@ -190,6 +316,7 @@ def main():
     device = "cuda" if torch.cuda.is_available() else ("mps" if getattr(torch.backends,'mps',None) and torch.backends.mps.is_available() else "cpu")
     tokenizer = AutoTokenizer.from_pretrained(args.model)
     model = AutoModelForSequenceClassification.from_pretrained(args.model)
+    # model = AutoModelForSequenceClassification.from_pretrained('./fine_tuned_model')
     model.to(device).eval()
 
     id2label = model.config.id2label
@@ -254,77 +381,164 @@ def main():
             top_id = int(np.argmax(pooled_probs))
             top_label = id2label[top_id]
             top_prob = float(pooled_probs[top_id])
+            
+            # Calculate ensemble signal from all predictions
+            ensemble_ad_signal = calculate_ensemble_ad_signal(promo_prob, top_label, pooled_probs, id2label)
 
             # Prepare thresholds
             lg = (meta.get("lg") or meta.get("lang") or "").lower()
             text_raw = meta.get("ft","")
             text_norm = normalize_text(text_raw)
             flags = rule_flags(text_norm)
-            thr = lang_len_threshold(lg, flags["len_words"], lang_thr_map, args.ad_threshold, args.short_bonus, args.short_len)
+            
+            # Base threshold with language and length adjustments
+            base_thr = lang_len_threshold(lg, flags["len_words"], lang_thr_map, args.ad_threshold, args.short_bonus, args.short_len)
+            
+            # Apply adaptive threshold adjustment
+            thr = get_adaptive_threshold_adjustment(flags, text_norm, base_thr)
 
             # Optional stacking with meta-classifier
             if meta_clf is not None:
                 x, _ = build_features(text_norm, lg, promo_prob)
-                # predict_proba for class 1 (ad)
                 try:
                     meta_prob = float(meta_clf.predict_proba(x.reshape(1,-1))[0,1])
                 except Exception:
-                    # fallback to decision_function if needed
                     s = float(meta_clf.decision_function(x.reshape(1,-1))[0])
                     meta_prob = 1 / (1 + math.exp(-s))
-                final_prob = 0.5*promo_prob + 0.5*meta_prob  # simple blend; adjust if desired
+                final_prob = 0.5*promo_prob + 0.5*meta_prob
             else:
-                final_prob = promo_prob
+                # Blend promotion probability with ensemble signal
+                final_prob = promo_prob * 0.85 + ensemble_ad_signal * 0.15
             
-            # Original rule scoring - keeping it simple
-            rule_score = (
-                1.0 * float(flags["has_price"])
-                + 1.0 * float(flags["has_phone"])
-                + 0.7 * float(flags["has_cue"])
-                + 0.4 * float(flags["has_area"])
-                + 0.4 * float(flags["has_rooms"])
-                + 0.3 * float(flags["has_address"])
-            )
-            rule_hit = rule_score >= 0.5
+            # Enhanced rule scoring with confidence
+            rule_score, rule_confidence = calculate_rule_score_and_confidence(flags)
+            rule_hit = rule_score >= 1.5
             
-            # Confidence-based approach
-            model_confidence = abs(promo_prob - 0.5) * 2  # Scale 0-1, higher means more confident
+            # Check for non-ad patterns to reduce false positives
+            non_ad_check = is_likely_non_ad_content(flags, text_norm, top_label)
             
-            # Balance rule influence based on model confidence
+            # Model confidence calculation
+            model_confidence = abs(promo_prob - 0.5) * 2
+            model_uncertainty = 1.0 - model_confidence
+            
+            # Rule influence should be inversely related to model confidence
+            rule_influence_multiplier = 0.3 + (model_uncertainty * 1.2)
+            
+            # Enhanced rule-based adjustments with more sophisticated logic
             if meta_clf is None:
-                if rule_hit and final_prob < thr:
-                    # Apply gentler boost when model is confident it's not an ad
-                    if promo_prob < 0.3 and model_confidence > 0.4:
-                        # Model is confident it's not an ad, apply minimal boost
-                        boost = min(0.15, (thr - final_prob) * 0.3)
-                    else:
-                        # Standard boost approach - adjusted to be less aggressive
-                        gap = thr - final_prob
-                        boost = gap * 0.4  # Less aggressive boost than before
+                precision_penalty = non_ad_check["non_ad_confidence"] * 0.2
+                
+                # More nuanced intervention logic
+                if model_confidence < 0.75:  # Slightly more permissive threshold
                     
-                    final_prob += boost
-                    final_prob = min(final_prob, thr * 0.98)  # Don't quite reach threshold
+                    # Very strong rule evidence
+                    if rule_confidence > 0.7 and rule_score >= 4.0:
+                        if precision_penalty < 0.1:
+                            base_boost = 0.15 - precision_penalty
+                            boost = max(base_boost * rule_influence_multiplier, 0.03)
+                            final_prob = max(final_prob, thr + boost)
+                        else:
+                            boost = max((0.06 - precision_penalty) * rule_influence_multiplier, 0.01)
+                            final_prob += boost
+                    
+                    # Strong rule evidence
+                    elif rule_confidence > 0.5 and rule_score >= 3.0:
+                        if precision_penalty < 0.1:
+                            base_boost = 0.12 - precision_penalty
+                            boost = max(base_boost * rule_influence_multiplier, 0.02)
+                            final_prob = max(final_prob, thr + boost)
+                        else:
+                            boost = max((0.05 - precision_penalty) * rule_influence_multiplier, 0.01)
+                            final_prob += boost
+                    
+                    # Medium rule confidence
+                    elif rule_confidence > 0.4 and rule_hit:
+                        if final_prob < thr and precision_penalty < 0.15:
+                            gap = thr - final_prob
+                            base_boost = gap * 0.65 + 0.08 - precision_penalty
+                            boost = max(base_boost * rule_influence_multiplier, 0.01)
+                            final_prob += boost
+                        elif precision_penalty < 0.05:
+                            boost = 0.04 * rule_influence_multiplier
+                            final_prob += boost
+                    
+                    # Low rule confidence - very selective intervention
+                    elif rule_confidence > 0.25 and rule_hit and model_uncertainty > 0.6:
+                        if precision_penalty < 0.05:
+                            boost = 0.03 * rule_influence_multiplier
+                            final_prob += boost
+                
+                # Enhanced combination bonuses with more patterns
+                if model_uncertainty > 0.25:
+                    combination_boost = 0.0
+                    
+                    # Strongest combinations
+                    if flags["has_price"] and flags["has_phone"] and precision_penalty < 0.1:
+                        combination_boost = (0.16 - precision_penalty) * rule_influence_multiplier
+                    elif (flags["has_price"] and flags["has_cue"]) and precision_penalty < 0.1:
+                        combination_boost = (0.13 - precision_penalty) * rule_influence_multiplier
+                    elif (flags["has_phone"] and flags["has_cue"]) and precision_penalty < 0.1:
+                        combination_boost = (0.11 - precision_penalty) * rule_influence_multiplier
+                    # New combinations
+                    elif flags["has_price"] and flags["has_address"] and flags["has_zip"]:
+                        combination_boost = (0.09 - precision_penalty) * rule_influence_multiplier
+                    elif flags["has_cue"] and flags["has_area"] and flags["has_rooms"]:
+                        combination_boost = (0.08 - precision_penalty) * rule_influence_multiplier
+                    
+                    if combination_boost > 0:
+                        final_prob = max(final_prob, min(final_prob + combination_boost, 0.92))
+                
+                # Smart threshold adjustment
+                if model_uncertainty > 0.35:
+                    if rule_score >= 3.5 and precision_penalty < 0.1:
+                        threshold_reduction = 0.18 * rule_influence_multiplier
+                        thr *= (1.0 - threshold_reduction)
+                    elif rule_score >= 2.5 and precision_penalty < 0.05:
+                        threshold_reduction = 0.12 * rule_influence_multiplier
+                        thr *= (1.0 - threshold_reduction)
+                
+                # Safety mechanisms
+                if model_confidence > 0.85 and promo_prob < 0.15:
+                    final_prob *= (0.93 - min(model_confidence * 0.12, 0.18))
+                elif model_confidence > 0.85 and promo_prob > 0.85:
+                    if precision_penalty > 0:
+                        precision_penalty *= (0.4 - model_confidence * 0.25)
+                
+                # Adaptive precision penalty
+                if precision_penalty > 0.15 and promo_prob < 0.35:
+                    adjusted_penalty = precision_penalty * (0.4 + model_confidence * 0.6)
+                    final_prob *= (0.75 - adjusted_penalty)
             
-            # Only apply promotion label boost when we're already close
-            if top_label in ["Promotion"]:
-                if final_prob > (thr * 0.8):
-                    final_prob = max(final_prob, thr)
-                else:
-                    final_prob = max(final_prob, final_prob * 1.15)  # Small boost
+            # Enhanced genre label handling
+            if top_label == "Promotion":
+                if rule_hit and precision_penalty < 0.1:
+                    base_boost = 0.06 - precision_penalty
+                    boost = max(base_boost * (0.6 + model_uncertainty * 0.7), 0.005)
+                    final_prob = max(final_prob, thr + boost)
+                elif precision_penalty < 0.05:
+                    multiplier = 1.12 + (model_uncertainty * 0.18)
+                    final_prob = max(final_prob, final_prob * multiplier)
                     
             is_ad_pred = bool(final_prob >= thr)
 
             meta_out = dict(meta)
             meta_out["promotion_prob"] = round(promo_prob, 6)
             meta_out["promotion_prob_final"] = round(final_prob, 6)
+            meta_out["ensemble_ad_signal"] = round(ensemble_ad_signal, 6)
             meta_out["xgenre_top_label"] = top_label
             meta_out["xgenre_top_prob"] = round(top_prob, 6)
             meta_out["is_ad_pred"] = is_ad_pred
             # attach diagnostics
             meta_out.update(flags)
+            meta_out.update(non_ad_check)
             meta_out["rule_hit"] = rule_hit
             meta_out["rule_score"] = round(rule_score, 3)
-            meta_out["threshold_used"] = thr
+            meta_out["rule_confidence"] = round(rule_confidence, 3)
+            meta_out["model_confidence"] = round(model_confidence, 3)
+            meta_out["rule_influence_multiplier"] = round(rule_influence_multiplier, 3)
+            meta_out["threshold_used"] = round(thr, 6)
+            meta_out["base_threshold"] = round(base_thr, 6)
+            meta_out["precision_penalty"] = round(precision_penalty, 3)
             out_rows.append(meta_out)
 
         # clear
@@ -370,6 +584,8 @@ def main():
     print(f"Toplabel Promotion: {promo_count} | Toplabel Other: {other_count}")
     print(f"Final is_ad_pred=True: {final_promo} | False: {final_other}")
     print(f"Non-ad categories breakdown: {non_ad_categories}")
+
+
 
 if __name__ == "__main__":
     main()

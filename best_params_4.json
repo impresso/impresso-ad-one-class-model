@@ -1,0 +1,49 @@
+{
+  "best_params": {
+    "pool": "logits_mean",
+    "temperature": 1.2,
+    "short_bonus": 0.15,
+    "short_len": 30,
+    "min_words": 3,
+    "chunk_words": 0,
+    "max_length": 512,
+    "ad_threshold": 0.0005545049789361656,
+    "lang_thresholds": "fr:0.0006,other:0.0005",
+    "model": "classla/xlm-roberta-base-multilingual-text-genre-classifier"
+  },
+  "best_metrics": {
+    "macro_f1": 0.7784813122825289,
+    "balanced_accuracy": 0.7308500496137906,
+    "mcc": 0.5788618115495014,
+    "precision_non_ad": 0.7777777777777778,
+    "recall_non_ad": 0.47572815533980584,
+    "f1_non_ad": 0.5903614457831325,
+    "precision_ad": 0.9479768786127167,
+    "recall_ad": 0.9859719438877755,
+    "f1_ad": 0.9666011787819253,
+    "confusion_matrix": [
+      [
+        49,
+        54
+      ],
+      [
+        14,
+        984
+      ]
+    ],
+    "n_samples": 1101,
+    "class_support": {
+      "non_ad": 103,
+      "ad": 998
+    }
+  },
+  "notes": {
+    "objective_metric": "macro_f1",
+    "dataset_info": {
+      "total_samples": 1103,
+      "ads_count": 1000,
+      "non_ads_count": 103
+    },
+    "optimization_method": "cached_search_with_model_approach_validation"
+  }
+}

@@ -94,11 +94,11 @@ def load_ocrqa_scores(prefix: str) -> dict:
     return ci_scores
 
 
-def clean_jsonl_file(file_path: str, min_ft_length: int = 15) -> str:
+def clean_jsonl_file(file_path: str, min_ft_length: int = 15, max_ft_length: int = 400) -> str:
     """
     Cleans a JSONL file and saves the cleaned version with "_cleaned" appended to the original filename.
 
-    Removes records where the 'ft' field is missing, empty, or shorter than min_ft_length.
+    Removes records where the 'ft' field is missing, empty, shorter than min_ft_length, or longer than max_ft_length.
 
     Returns:
         Path to the cleaned JSONL file.
@@ -118,9 +118,13 @@ def clean_jsonl_file(file_path: str, min_ft_length: int = 15) -> str:
                 dropped += 1
                 continue
 
-            # Efficient checks first: remove if ft missing/empty/too short
+            # Efficient checks first: remove if ft missing/empty/too short/too long
             ft = data.get('ft')
-            if not isinstance(ft, str) or len(ft.strip()) < int(min_ft_length):
+            if not isinstance(ft, str):
+                dropped += 1
+                continue
+            ft_length = len(ft.strip())
+            if ft_length < min_ft_length or ft_length > max_ft_length:
                 dropped += 1
                 continue
 
@@ -132,7 +136,7 @@ def clean_jsonl_file(file_path: str, min_ft_length: int = 15) -> str:
     return cleaned_file_path
 
 
-def filter_jsonl(file_path: str, keys_to_keep, min_ft_length: int = 15, ocr_threshold: float = 0.5, s3_prefix: str = None, target_lang: str = None) -> str:
+def filter_jsonl(file_path: str, keys_to_keep, min_ft_length: int = 15, max_ft_length: int = 400, ocr_threshold: float = 0.5, s3_prefix: str = None, target_lang: str = None) -> str:
     """
     Filter a JSONL file to keep only specified keys and remove records with short/empty 'ft' or low OCR scores.
 
@@ -140,6 +144,7 @@ def filter_jsonl(file_path: str, keys_to_keep, min_ft_length: int = 15, ocr_thre
         file_path: Path to the input JSONL file.
         keys_to_keep: List of keys to retain in each JSON object.
         min_ft_length: Minimum length for the 'ft' field (default 15).
+        max_ft_length: Maximum length for the 'ft' field (default 400).
         ocr_threshold: Minimum OCR quality score (default 0.5).
         s3_prefix: S3 prefix for loading OCRQA scores (required for OCR filtering).
         target_lang: Target language code to filter by (e.g., 'fr', 'de').
@@ -185,9 +190,14 @@ def filter_jsonl(file_path: str, keys_to_keep, min_ft_length: int = 15, ocr_thre
                     dropped_lang += 1
                     continue
 
-            # Skip records with empty or too-short 'ft' key (fast check)
+            # Skip records with empty, too-short, or too-long 'ft' key (fast check)
             ft = record.get('ft')
-            if not isinstance(ft, str) or len(ft.strip()) < int(min_ft_length):
+            if not isinstance(ft, str):
+                dropped += 1
+                dropped_ft += 1
+                continue
+            ft_length = len(ft.strip())
+            if ft_length < min_ft_length or ft_length > max_ft_length:
                 dropped += 1
                 dropped_ft += 1
                 continue
@@ -217,6 +227,7 @@ if __name__ == "__main__":
     parser.add_argument("--input-path", required=True, help="Path to the input JSONL file.")
     parser.add_argument("--keys", nargs='*', default=["id", "lg", "ft"], help="List of keys to keep in the output file (default: id, lg, ft).")
     parser.add_argument("--min-ft-length", type=int, default=15, help="Minimum length for the 'ft' field (default: 15).")
+    parser.add_argument("--max-ft-length", type=int, default=400, help="Maximum length for the 'ft' field (default: 400).")
     parser.add_argument("--ocr-threshold", type=float, default=0.5, help="Minimum OCR quality score (default: 0.5).")
     parser.add_argument("--s3-prefix", type=str, default="s3://42-impresso-final/rebuilt_data_rebuilt-wp_v1.0.6_v1-0-0", help="S3 prefix for loading OCRQA scores (default: s3://42-impresso-final/rebuilt_data_rebuilt-wp_v1.0.6_v1-0-0).")
     parser.add_argument("--lang", type=str, help="Target language code to filter by (e.g., 'fr', 'de'). Will filter records and append to output filename.")
@@ -224,8 +235,8 @@ if __name__ == "__main__":
 
     # If keys provided (possibly default), run filter; otherwise run clean only
     if args.keys:
-        output_file = filter_jsonl(args.input_path, args.keys, args.min_ft_length, args.ocr_threshold, args.s3_prefix, args.lang)
+        output_file = filter_jsonl(args.input_path, args.keys, args.min_ft_length, args.max_ft_length, args.ocr_threshold, args.s3_prefix, args.lang)
     else:
-        output_file = clean_jsonl_file(args.input_path, args.min_ft_length)
+        output_file = clean_jsonl_file(args.input_path, args.min_ft_length, args.max_ft_length)
 
     print(f"Processed file saved to: {output_file}")
