@@ -1,0 +1,452 @@
+[
+  {
+    "rank_in_finalists": 1,
+    "params": {
+      "pool": "logits_mean",
+      "temperature": 1.5,
+      "short_bonus": 0.2,
+      "short_len": 30,
+      "min_words": 0,
+      "chunk_words": 200,
+      "max_length": 512,
+      "threshold_mode": "per_lang",
+      "ad_threshold": 0.004983001388609409,
+      "lang_thresholds": "fr:0.0050"
+    },
+    "result": {
+      "metrics": {
+        "macro_f1": 0.33003300330033003,
+        "balanced_accuracy": 0.5,
+        "mcc": 0.0,
+        "precision_non_ad": 0.0,
+        "recall_non_ad": 0.0,
+        "f1_non_ad": 0.0,
+        "precision_ad": 0.49261083743842365,
+        "recall_ad": 1.0,
+        "f1_ad": 0.6600660066006601,
+        "confusion_matrix": [
+          [
+            0,
+            103
+          ],
+          [
+            0,
+            100
+          ]
+        ],
+        "n_samples": 203,
+        "class_support": {
+          "non_ad": 103,
+          "ad": 100
+        }
+      },
+      "effective_samples": 203
+    },
+    "elapsed_sec": 9.224894762039185
+  },
+  {
+    "rank_in_finalists": 2,
+    "params": {
+      "pool": "logits_weighted",
+      "temperature": 1.5,
+      "short_bonus": 0.25,
+      "short_len": 50,
+      "min_words": 0,
+      "chunk_words": 200,
+      "max_length": 512,
+      "threshold_mode": "per_lang",
+      "ad_threshold": 0.004983001388609409,
+      "lang_thresholds": "fr:0.0050"
+    },
+    "result": {
+      "metrics": {
+        "macro_f1": 0.33003300330033003,
+        "balanced_accuracy": 0.5,
+        "mcc": 0.0,
+        "precision_non_ad": 0.0,
+        "recall_non_ad": 0.0,
+        "f1_non_ad": 0.0,
+        "precision_ad": 0.49261083743842365,
+        "recall_ad": 1.0,
+        "f1_ad": 0.6600660066006601,
+        "confusion_matrix": [
+          [
+            0,
+            103
+          ],
+          [
+            0,
+            100
+          ]
+        ],
+        "n_samples": 203,
+        "class_support": {
+          "non_ad": 103,
+          "ad": 100
+        }
+      },
+      "effective_samples": 203
+    },
+    "elapsed_sec": 9.200208902359009
+  },
+  {
+    "rank_in_finalists": 3,
+    "params": {
+      "pool": "logits_weighted",
+      "temperature": 1.5,
+      "short_bonus": 0.2,
+      "short_len": 30,
+      "min_words": 3,
+      "chunk_words": 200,
+      "max_length": 512,
+      "threshold_mode": "per_lang",
+      "ad_threshold": 0.004983001388609409,
+      "lang_thresholds": "fr:0.0050"
+    },
+    "result": {
+      "metrics": {
+        "macro_f1": 0.33003300330033003,
+        "balanced_accuracy": 0.5,
+        "mcc": 0.0,
+        "precision_non_ad": 0.0,
+        "recall_non_ad": 0.0,
+        "f1_non_ad": 0.0,
+        "precision_ad": 0.49261083743842365,
+        "recall_ad": 1.0,
+        "f1_ad": 0.6600660066006601,
+        "confusion_matrix": [
+          [
+            0,
+            103
+          ],
+          [
+            0,
+            100
+          ]
+        ],
+        "n_samples": 203,
+        "class_support": {
+          "non_ad": 103,
+          "ad": 100
+        }
+      },
+      "effective_samples": 203
+    },
+    "elapsed_sec": 9.313461065292358
+  },
+  {
+    "rank_in_finalists": 4,
+    "params": {
+      "pool": "logits_mean",
+      "temperature": 1.5,
+      "short_bonus": 0.25,
+      "short_len": 50,
+      "min_words": 3,
+      "chunk_words": 200,
+      "max_length": 512,
+      "threshold_mode": "global",
+      "ad_threshold": 0.004983001388609409,
+      "lang_thresholds": ""
+    },
+    "result": {
+      "metrics": {
+        "macro_f1": 0.33003300330033003,
+        "balanced_accuracy": 0.5,
+        "mcc": 0.0,
+        "precision_non_ad": 0.0,
+        "recall_non_ad": 0.0,
+        "f1_non_ad": 0.0,
+        "precision_ad": 0.49261083743842365,
+        "recall_ad": 1.0,
+        "f1_ad": 0.6600660066006601,
+        "confusion_matrix": [
+          [
+            0,
+            103
+          ],
+          [
+            0,
+            100
+          ]
+        ],
+        "n_samples": 203,
+        "class_support": {
+          "non_ad": 103,
+          "ad": 100
+        }
+      },
+      "effective_samples": 203
+    },
+    "elapsed_sec": 9.28272008895874
+  },
+  {
+    "rank_in_finalists": 5,
+    "params": {
+      "pool": "logits_mean",
+      "temperature": 1.5,
+      "short_bonus": 0.25,
+      "short_len": 40,
+      "min_words": 5,
+      "chunk_words": 200,
+      "max_length": 512,
+      "threshold_mode": "per_lang",
+      "ad_threshold": 0.004983001388609409,
+      "lang_thresholds": "fr:0.0050"
+    },
+    "result": {
+      "metrics": {
+        "macro_f1": 0.33003300330033003,
+        "balanced_accuracy": 0.5,
+        "mcc": 0.0,
+        "precision_non_ad": 0.0,
+        "recall_non_ad": 0.0,
+        "f1_non_ad": 0.0,
+        "precision_ad": 0.49261083743842365,
+        "recall_ad": 1.0,
+        "f1_ad": 0.6600660066006601,
+        "confusion_matrix": [
+          [
+            0,
+            103
+          ],
+          [
+            0,
+            100
+          ]
+        ],
+        "n_samples": 203,
+        "class_support": {
+          "non_ad": 103,
+          "ad": 100
+        }
+      },
+      "effective_samples": 203
+    },
+    "elapsed_sec": 9.288579940795898
+  },
+  {
+    "rank_in_finalists": 6,
+    "params": {
+      "pool": "logits_mean",
+      "temperature": 1.5,
+      "short_bonus": 0.15,
+      "short_len": 50,
+      "min_words": 3,
+      "chunk_words": 200,
+      "max_length": 512,
+      "threshold_mode": "per_lang",
+      "ad_threshold": 0.004983001388609409,
+      "lang_thresholds": "fr:0.0050"
+    },
+    "result": {
+      "metrics": {
+        "macro_f1": 0.33003300330033003,
+        "balanced_accuracy": 0.5,
+        "mcc": 0.0,
+        "precision_non_ad": 0.0,
+        "recall_non_ad": 0.0,
+        "f1_non_ad": 0.0,
+        "precision_ad": 0.49261083743842365,
+        "recall_ad": 1.0,
+        "f1_ad": 0.6600660066006601,
+        "confusion_matrix": [
+          [
+            0,
+            103
+          ],
+          [
+            0,
+            100
+          ]
+        ],
+        "n_samples": 203,
+        "class_support": {
+          "non_ad": 103,
+          "ad": 100
+        }
+      },
+      "effective_samples": 203
+    },
+    "elapsed_sec": 9.280924081802368
+  },
+  {
+    "rank_in_finalists": 7,
+    "params": {
+      "pool": "logits_weighted",
+      "temperature": 1.5,
+      "short_bonus": 0.25,
+      "short_len": 40,
+      "min_words": 5,
+      "chunk_words": 200,
+      "max_length": 512,
+      "threshold_mode": "per_lang",
+      "ad_threshold": 0.004983001388609409,
+      "lang_thresholds": "fr:0.0050"
+    },
+    "result": {
+      "metrics": {
+        "macro_f1": 0.33003300330033003,
+        "balanced_accuracy": 0.5,
+        "mcc": 0.0,
+        "precision_non_ad": 0.0,
+        "recall_non_ad": 0.0,
+        "f1_non_ad": 0.0,
+        "precision_ad": 0.49261083743842365,
+        "recall_ad": 1.0,
+        "f1_ad": 0.6600660066006601,
+        "confusion_matrix": [
+          [
+            0,
+            103
+          ],
+          [
+            0,
+            100
+          ]
+        ],
+        "n_samples": 203,
+        "class_support": {
+          "non_ad": 103,
+          "ad": 100
+        }
+      },
+      "effective_samples": 203
+    },
+    "elapsed_sec": 9.231100082397461
+  },
+  {
+    "rank_in_finalists": 8,
+    "params": {
+      "pool": "logits_weighted",
+      "temperature": 1.5,
+      "short_bonus": 0.2,
+      "short_len": 50,
+      "min_words": 5,
+      "chunk_words": 200,
+      "max_length": 512,
+      "threshold_mode": "per_lang",
+      "ad_threshold": 0.004983001388609409,
+      "lang_thresholds": "fr:0.0050"
+    },
+    "result": {
+      "metrics": {
+        "macro_f1": 0.33003300330033003,
+        "balanced_accuracy": 0.5,
+        "mcc": 0.0,
+        "precision_non_ad": 0.0,
+        "recall_non_ad": 0.0,
+        "f1_non_ad": 0.0,
+        "precision_ad": 0.49261083743842365,
+        "recall_ad": 1.0,
+        "f1_ad": 0.6600660066006601,
+        "confusion_matrix": [
+          [
+            0,
+            103
+          ],
+          [
+            0,
+            100
+          ]
+        ],
+        "n_samples": 203,
+        "class_support": {
+          "non_ad": 103,
+          "ad": 100
+        }
+      },
+      "effective_samples": 203
+    },
+    "elapsed_sec": 9.259552955627441
+  },
+  {
+    "rank_in_finalists": 9,
+    "params": {
+      "pool": "logits_weighted",
+      "temperature": 1.5,
+      "short_bonus": 0.25,
+      "short_len": 50,
+      "min_words": 3,
+      "chunk_words": 200,
+      "max_length": 512,
+      "threshold_mode": "per_lang",
+      "ad_threshold": 0.004983001388609409,
+      "lang_thresholds": "fr:0.0050"
+    },
+    "result": {
+      "metrics": {
+        "macro_f1": 0.33003300330033003,
+        "balanced_accuracy": 0.5,
+        "mcc": 0.0,
+        "precision_non_ad": 0.0,
+        "recall_non_ad": 0.0,
+        "f1_non_ad": 0.0,
+        "precision_ad": 0.49261083743842365,
+        "recall_ad": 1.0,
+        "f1_ad": 0.6600660066006601,
+        "confusion_matrix": [
+          [
+            0,
+            103
+          ],
+          [
+            0,
+            100
+          ]
+        ],
+        "n_samples": 203,
+        "class_support": {
+          "non_ad": 103,
+          "ad": 100
+        }
+      },
+      "effective_samples": 203
+    },
+    "elapsed_sec": 9.635962963104248
+  },
+  {
+    "rank_in_finalists": 10,
+    "params": {
+      "pool": "logits_mean",
+      "temperature": 1.5,
+      "short_bonus": 0.25,
+      "short_len": 40,
+      "min_words": 0,
+      "chunk_words": 200,
+      "max_length": 512,
+      "threshold_mode": "per_lang",
+      "ad_threshold": 0.004983001388609409,
+      "lang_thresholds": "fr:0.0050"
+    },
+    "result": {
+      "metrics": {
+        "macro_f1": 0.33003300330033003,
+        "balanced_accuracy": 0.5,
+        "mcc": 0.0,
+        "precision_non_ad": 0.0,
+        "recall_non_ad": 0.0,
+        "f1_non_ad": 0.0,
+        "precision_ad": 0.49261083743842365,
+        "recall_ad": 1.0,
+        "f1_ad": 0.6600660066006601,
+        "confusion_matrix": [
+          [
+            0,
+            103
+          ],
+          [
+            0,
+            100
+          ]
+        ],
+        "n_samples": 203,
+        "class_support": {
+          "non_ad": 103,
+          "ad": 100
+        }
+      },
+      "effective_samples": 203
+    },
+    "elapsed_sec": 9.469218015670776
+  }
+]

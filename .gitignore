@@ -40,3 +40,5 @@ artifacts/
 
 all_ads_ids.jsonl
 non-ads-stuff/non_ad_articles.jsonl
+ovr_promo_ft/
+non-ads-stuff/non_ads_articles_5000.jsonl

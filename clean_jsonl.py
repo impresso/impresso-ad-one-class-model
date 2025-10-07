@@ -136,7 +136,7 @@ def clean_jsonl_file(file_path: str, min_ft_length: int = 15, max_ft_length: int
     return cleaned_file_path
 
 
-def filter_jsonl(file_path: str, keys_to_keep, min_ft_length: int = 15, max_ft_length: int = 400, ocr_threshold: float = 0.5, s3_prefix: str = None, target_lang: str = None) -> str:
+def filter_jsonl(file_path: str, keys_to_keep, min_ft_length: int = 15, max_ft_length: int = 400, ocr_threshold: float = None, s3_prefix: str = None, target_lang: str = None) -> str:
     """
     Filter a JSONL file to keep only specified keys and remove records with short/empty 'ft' or low OCR scores.
 
@@ -145,7 +145,7 @@ def filter_jsonl(file_path: str, keys_to_keep, min_ft_length: int = 15, max_ft_l
         keys_to_keep: List of keys to retain in each JSON object.
         min_ft_length: Minimum length for the 'ft' field (default 15).
         max_ft_length: Maximum length for the 'ft' field (default 400).
-        ocr_threshold: Minimum OCR quality score (default 0.5).
+        ocr_threshold: Minimum OCR quality score (default None - no OCR filtering).
         s3_prefix: S3 prefix for loading OCRQA scores (required for OCR filtering).
         target_lang: Target language code to filter by (e.g., 'fr', 'de').
 
@@ -159,9 +159,9 @@ def filter_jsonl(file_path: str, keys_to_keep, min_ft_length: int = 15, max_ft_l
     else:
         filtered_file_path = f"{base_name}_filtered.jsonl"
 
-    # Load OCRQA scores if s3_prefix provided
+    # Load OCRQA scores only if ocr_threshold is specified
     ocrqa_map = {}
-    if s3_prefix:
+    if ocr_threshold is not None and s3_prefix:
         print(f"Loading OCRQA scores for OCR filtering (threshold: {ocr_threshold})")
         ocrqa_map = load_ocrqa_scores(s3_prefix)
 
@@ -202,8 +202,8 @@ def filter_jsonl(file_path: str, keys_to_keep, min_ft_length: int = 15, max_ft_l
                 dropped_ft += 1
                 continue
 
-            # OCR quality filtering if OCRQA data available
-            if ocrqa_map:
+            # OCR quality filtering only if threshold is specified and OCRQA data available
+            if ocr_threshold is not None and ocrqa_map:
                 article_id = record.get('id')
                 if article_id and article_id in ocrqa_map:
                     lang, ocr_score = ocrqa_map[article_id]
@@ -227,8 +227,8 @@ if __name__ == "__main__":
     parser.add_argument("--input-path", required=True, help="Path to the input JSONL file.")
     parser.add_argument("--keys", nargs='*', default=["id", "lg", "ft"], help="List of keys to keep in the output file (default: id, lg, ft).")
     parser.add_argument("--min-ft-length", type=int, default=15, help="Minimum length for the 'ft' field (default: 15).")
-    parser.add_argument("--max-ft-length", type=int, default=400, help="Maximum length for the 'ft' field (default: 400).")
-    parser.add_argument("--ocr-threshold", type=float, default=0.5, help="Minimum OCR quality score (default: 0.5).")
+    parser.add_argument("--max-ft-length", type=int, default=3000, help="Maximum length for the 'ft' field (default: 400).")
+    parser.add_argument("--ocr-threshold", type=float, default=None, help="Minimum OCR quality score (default: None - no OCR filtering).")
     parser.add_argument("--s3-prefix", type=str, default="s3://42-impresso-final/rebuilt_data_rebuilt-wp_v1.0.6_v1-0-0", help="S3 prefix for loading OCRQA scores (default: s3://42-impresso-final/rebuilt_data_rebuilt-wp_v1.0.6_v1-0-0).")
     parser.add_argument("--lang", type=str, help="Target language code to filter by (e.g., 'fr', 'de'). Will filter records and append to output filename.")
     args = parser.parse_args()

@@ -1,0 +1,53 @@
+{
+  "model_dir": "./ovr_promo_ft",
+  "n_ads": 50,
+  "n_non_ads": 50,
+  "promo_label_id": 8,
+  "probability_stats": {
+    "ads": {
+      "min": 0.19160589575767517,
+      "mean": 0.8889509439468384,
+      "median": 0.9878243803977966,
+      "max": 0.9942370653152466
+    },
+    "non_ads": {
+      "min": 0.004717581439763308,
+      "mean": 0.0970238521695137,
+      "median": 0.008262094110250473,
+      "max": 0.8008477687835693
+    }
+  },
+  "thresholds": {
+    "f1_optimal": {
+      "threshold": 0.47473809123039246,
+      "f1": 0.9411764705382545,
+      "precision": 0.9230769230769231,
+      "recall": 0.96
+    },
+    "balanced": {
+      "threshold": 0.5217044949531555,
+      "f1": 0.9399999999499999,
+      "precision": 0.94,
+      "recall": 0.94
+    },
+    "high_precision": {
+      "threshold": 0.6743647456169128,
+      "f1": 0.9052631578448754,
+      "precision": 0.9555555555555556,
+      "recall": 0.86
+    },
+    "high_recall": {
+      "threshold": 0.47473809123039246,
+      "f1": 0.9411764705382545,
+      "precision": 0.9230769230769231,
+      "recall": 0.96
+    },
+    "standard_0.5": {
+      "threshold": 0.5,
+      "f1": 0.94,
+      "precision": 0.94,
+      "recall": 0.94
+    }
+  },
+  "recommended_threshold": 0.47473809123039246
+}
