@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fine-Tuning Documentation - Ad Detection Model</title>
+    <style>
+        @media print {
+            body { margin: 0; }
+            .page-break { page-break-after: always; }
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7;
+            color: #2c3e50;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 60px;
+            background: white;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #e74c3c;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+        
+        h2 {
+            color: #34495e;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 24px;
+            border-left: 5px solid #e74c3c;
+            padding-left: 15px;
+            background: linear-gradient(to right, #fff5f5, transparent);
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        .component-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 25px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .highlight-box {
+            background: #ffe3e3;
+            border-left: 4px solid #e74c3c;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .code-block {
+            background: #f4f4f4;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+        }
+        
+        .code-block .comment {
+            color: #6a737d;
+        }
+        
+        .code-block .keyword {
+            color: #d73a49;
+            font-weight: bold;
+        }
+        
+        .code-block .string {
+            color: #032f62;
+        }
+        
+        .code-block .number {
+            color: #005cc5;
+        }
+        
+        .diagram {
+            background: white;
+            border: 2px solid #e74c3c;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .flow-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .flow-step {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
+            color: white;
+            border-radius: 8px;
+            padding: 15px 20px;
+            margin: 10px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+            min-width: 180px;
+        }
+        
+        .flow-step.secondary {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+        
+        .flow-step.tertiary {
+            background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+        }
+        
+        .arrow {
+            font-size: 28px;
+            color: #e74c3c;
+            margin: 0 10px;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        th {
+            background: #e74c3c;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .metric-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .metric-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .metric-label {
+            font-size: 14px;
+            color: #666;
+            margin-bottom: 8px;
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e74c3c;
+        }
+        
+        .strategy-box {
+            background: #fff9f0;
+            border: 2px solid #ff9800;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .strategy-header {
+            background: #ff9800;
+            color: white;
+            padding: 10px;
+            margin: -20px -20px 15px -20px;
+            border-radius: 6px 6px 0 0;
+            font-weight: bold;
+        }
+        
+        ul {
+            line-height: 1.8;
+        }
+        
+        strong {
+            color: #e74c3c;
+        }
+    </style>
+</head>
+<body>
+    <h1>Fine-Tuning Documentation 🔧</h1>
+    
+    <p style="font-style: italic; color: #666; font-size: 18px;">
+        One-vs-Rest fine-tuning approach to enhance the XLM-RoBERTa genre classifier for advertisement detection
+    </p>
+
+    <h2>Overview: Why Fine-Tune?</h2>
+    
+    <div class="component-box">
+        <p>The base model (XLM-RoBERTa multilingual text genre classifier) already has a "Promotion" class, but it wasn't specifically trained to detect the types of advertisements we encounter. Fine-tuning improves the model's ability to recognize ads while preserving its multi-class genre classification capabilities.</p>
+        
+        <div class="success-box">
+            <strong>Key Advantage:</strong> One-vs-Rest (OvR) approach enhances "Promotion" detection without destroying the model's understanding of other text genres.
+        </div>
+    </div>
+
+    <h2>The One-vs-Rest (OvR) Strategy</h2>
+    
+    <div class="diagram">
+        <h3 style="text-align: center;">Fine-Tuning Data Flow</h3>
+        
+        <div class="flow-container">
+            <div class="flow-step">
+                📄 3,800 Real Ads<br>
+                <small>(Multiple languages)</small>
+            </div>
+            <div class="arrow">→</div>
+            <div class="flow-step secondary">
+                🏷️ All Labeled<br>
+                <small>"Promotion"</small>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin: 20px 0; font-size: 24px; color: #666;">+</div>
+        
+        <div class="flow-container">
+            <div class="flow-step">
+                📰 3,800 Non-Ads<br>
+                <small>(Articles, posts, etc.)</small>
+            </div>
+            <div class="arrow">→</div>
+            <div class="flow-step secondary">
+                🎲 Distributed Across<br>
+                <small>Other Genre Labels</small>
+            </div>
+        </div>
+        
+        <div style="text-align: center; margin: 20px 0; font-size: 24px; color: #e74c3c;">↓</div>
+        
+        <div class="flow-container">
+            <div class="flow-step tertiary" style="min-width: 300px;">
+                ✅ Balanced Training Set<br>
+                <small>Multi-class labels preserved</small>
+            </div>
+        </div>
+    </div>
+
+    <div class="strategy-box">
+        <div class="strategy-header">🎯 Label Distribution Strategy</div>
+        <p><strong>For Advertisements:</strong> All 3,800 examples → "Promotion" label</p>
+        
+        <p><strong>For Non-Advertisements:</strong> We manually assign them to the other genre labels (excluding "Promotion"). Since we don't have ground truth labels for these non-ads, we use <strong>weighted random sampling</strong> to distribute them across genres in a way that makes semantic sense:</p>
+        <ul>
+            <li><strong>High weight (3.0×):</strong> News, Information, Article</li>
+            <li><strong>Medium weight (2.0×):</strong> Opinion, Editorial, Legal, Official</li>
+            <li><strong>Base weight (1.0×):</strong> All other genres</li>
+        </ul>
+        
+        <div class="highlight-box">
+            <strong>Why weighted random assignment?</strong> We don't know the true genre of each non-ad, but we know they're NOT promotions. By heavily weighting informational genres (News, Articles), we simulate realistic non-promotional content. Each non-ad gets randomly assigned a label based on these probabilities, creating diversity in the training data.
+        </div>
+        
+        <div class="warning-box">
+            <strong>Important:</strong> These assignments are synthetic training labels, not ground truth. The goal is to teach the model "Promotion vs Everything Else" while maintaining its multi-class structure.
+        </div>
+    </div>
+
+    <h2>Training Configuration</h2>
+    
+    <div class="component-box">
+        <h3>Hyperparameters</h3>
+        <table>
+            <tr>
+                <th>Parameter</th>
+                <th>Default Value</th>
+                <th>Purpose</th>
+            </tr>
+            <tr>
+                <td><strong>Learning Rate</strong></td>
+                <td>2e-5</td>
+                <td>Small enough to preserve pre-trained knowledge</td>
+            </tr>
+            <tr>
+                <td><strong>Epochs</strong></td>
+                <td>3</td>
+                <td>Balanced training without overfitting</td>
+            </tr>
+            <tr>
+                <td><strong>Batch Size</strong></td>
+                <td>16</td>
+                <td>Memory-efficient processing</td>
+            </tr>
+            <tr>
+                <td><strong>Warmup Ratio</strong></td>
+                <td>0.1</td>
+                <td>Gradual learning rate ramp-up</td>
+            </tr>
+            <tr>
+                <td><strong>Weight Decay</strong></td>
+                <td>0.01</td>
+                <td>Regularization to prevent overfitting</td>
+            </tr>
+            <tr>
+                <td><strong>Max Sequence Length</strong></td>
+                <td>512 tokens</td>
+                <td>Standard for XLM-RoBERTa</td>
+            </tr>
+        </table>
+        
+        <h3>Early Stopping</h3>
+        <div class="warning-box">
+            <strong>Patience: 3 evaluations</strong><br>
+            Training stops if F1 score doesn't improve for 3 consecutive evaluation steps, preventing overfitting.
+        </div>
+    </div>
+
+    <h2>Data Preparation Pipeline</h2>
+    
+    <div class="component-box">
+        <h3>Step-by-Step Process</h3>
+        
+        <div class="code-block">
+<span class="comment"># 1. Load JSONL files</span>
+ads = load_jsonl(<span class="string">"ads_5000.jsonl"</span>)       <span class="comment"># 3,800 used</span>
+non_ads = load_jsonl(<span class="string">"non_ads_5000.jsonl"</span>) <span class="comment"># 3,800 used</span>
+
+<span class="comment"># 2. Get model's original label mapping</span>
+id2label = model.config.id2label  <span class="comment"># e.g., {0: "News", 1: "Promotion", ...}</span>
+promo_id = find_promotion_label(id2label)  <span class="comment"># Find "Promotion" ID</span>
+
+<span class="comment"># 3. Create weighted distribution for non-ads</span>
+other_labels = [id <span class="keyword">for</span> id <span class="keyword">in</span> id2label <span class="keyword">if</span> id != promo_id]
+
+<span class="comment"># Assign weights based on genre type</span>
+label_weights = {}
+<span class="keyword">for</span> label_id <span class="keyword">in</span> other_labels:
+    label_name = id2label[label_id].lower()
+    <span class="keyword">if</span> <span class="string">'news'</span> <span class="keyword">in</span> label_name <span class="keyword">or</span> <span class="string">'information'</span> <span class="keyword">in</span> label_name:
+        label_weights[label_id] = <span class="number">3.0</span>  <span class="comment"># High probability</span>
+    <span class="keyword">elif</span> <span class="string">'opinion'</span> <span class="keyword">in</span> label_name <span class="keyword">or</span> <span class="string">'editorial'</span> <span class="keyword">in</span> label_name:
+        label_weights[label_id] = <span class="number">2.0</span>  <span class="comment"># Medium probability</span>
+    <span class="keyword">else</span>:
+        label_weights[label_id] = <span class="number">1.0</span>  <span class="comment"># Base probability</span>
+
+<span class="comment"># Normalize to create probability distribution</span>
+total_weight = sum(label_weights.values())
+label_probs = [label_weights[id] / total_weight <span class="keyword">for</span> id <span class="keyword">in</span> other_labels]
+
+<span class="comment"># 4. Prepare examples</span>
+<span class="keyword">for</span> ad <span class="keyword">in</span> ads:
+    examples.append({
+        <span class="string">'text'</span>: ad[<span class="string">'ft'</span>],           <span class="comment"># Full text</span>
+        <span class="string">'label'</span>: promo_id,        <span class="comment"># Always "Promotion"</span>
+        <span class="string">'original_type'</span>: <span class="string">'ad'</span>
+    })
+
+<span class="keyword">for</span> non_ad <span class="keyword">in</span> non_ads:
+    <span class="comment"># Randomly assign label based on weighted probabilities</span>
+    assigned_label = np.random.choice(other_labels, p=label_probs)
+    examples.append({
+        <span class="string">'text'</span>: non_ad[<span class="string">'ft'</span>],
+        <span class="string">'label'</span>: assigned_label,  <span class="comment"># News, Article, Opinion, etc.</span>
+        <span class="string">'original_type'</span>: <span class="string">'non-ad'</span>
+    })
+
+<span class="comment"># 5. Split into train/validation (85%/15%)</span>
+train, val = train_test_split(examples, test_size=<span class="number">0.15</span>, stratify=types)
+
+<span class="comment"># 6. Tokenize with XLM-RoBERTa tokenizer</span>
+tokenized = tokenizer(texts, padding=<span class="string">'max_length'</span>, truncation=<span class="keyword">True</span>, max_length=<span class="number">512</span>)
+        </div>
+    </div>
+
+    <h2>Evaluation Metrics</h2>
+    
+    <div class="component-box">
+        <h3>Dual Evaluation Approach</h3>
+        
+        <div class="highlight-box">
+            <strong>1. Multi-Class Accuracy:</strong> How well the model predicts the exact genre label<br>
+            <strong>2. Binary Metrics:</strong> How well it distinguishes ads (Promotion) from everything else
+        </div>
+        
+        <h3>Binary Classification Metrics</h3>
+        <div class="code-block">
+<span class="comment"># Convert predictions to binary: Is it Promotion or not?</span>
+binary_preds = (predictions == promo_id)    <span class="comment"># True/False</span>
+binary_labels = (labels == promo_id)        <span class="comment"># True/False</span>
+
+<span class="comment"># Calculate confusion matrix</span>
+TP = (binary_preds == <span class="keyword">True</span>) & (binary_labels == <span class="keyword">True</span>)   <span class="comment"># Correctly detected ads</span>
+FP = (binary_preds == <span class="keyword">True</span>) & (binary_labels == <span class="keyword">False</span>)  <span class="comment"># False alarms</span>
+TN = (binary_preds == <span class="keyword">False</span>) & (binary_labels == <span class="keyword">False</span>) <span class="comment"># Correctly rejected</span>
+FN = (binary_preds == <span class="keyword">False</span>) & (binary_labels == <span class="keyword">True</span>)  <span class="comment"># Missed ads</span>
+
+<span class="comment"># Core metrics</span>
+Precision = TP / (TP + FP)  <span class="comment"># How many detected ads are real?</span>
+Recall = TP / (TP + FN)     <span class="comment"># How many real ads did we find?</span>
+F1 = <span class="number">2</span> * (Precision * Recall) / (Precision + Recall)
+        </div>
+        
+        <div class="metric-grid">
+            <div class="metric-card">
+                <div class="metric-label">Precision</div>
+                <div class="metric-value">TP/(TP+FP)</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Recall</div>
+                <div class="metric-value">TP/(TP+FN)</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">F1 Score</div>
+                <div class="metric-value">Harmonic Mean</div>
+            </div>
+            <div class="metric-card">
+                <div class="metric-label">Binary Accuracy</div>
+                <div class="metric-value">(TP+TN)/Total</div>
+            </div>
+        </div>
+    </div>
+
+    <h2>Usage & Output</h2>
+    
+    <div class="component-box">
+        <h3>Running Fine-Tuning</h3>
+        <div class="code-block">
+python fine_tune_xgenre.py \
+    --ads ads_5000.jsonl \
+    --non_ads non_ads_5000.jsonl \
+    --output_dir ./ovr_promo_ft \
+    --epochs <span class="number">3</span> \
+    --batch_size <span class="number">16</span> \
+    --learning_rate <span class="number">2e-5</span> \
+    --early_stopping_patience <span class="number">3</span>
+        </div>
+        
+        <h3>Output Files</h3>
+        <table>
+            <tr>
+                <th>File</th>
+                <th>Description</th>
+            </tr>
+            <tr>
+                <td><strong>pytorch_model.bin</strong></td>
+                <td>Fine-tuned model weights</td>
+            </tr>
+            <tr>
+                <td><strong>config.json</strong></td>
+                <td>Model configuration and label mapping</td>
+            </tr>
+            <tr>
+                <td><strong>tokenizer files</strong></td>
+                <td>Tokenizer configuration and vocabulary</td>
+            </tr>
+            <tr>
+                <td><strong>training_info.json</strong></td>
+                <td>Training metadata and hyperparameters</td>
+            </tr>
+            <tr>
+                <td><strong>training_logs</strong></td>
+                <td>Loss, metrics per epoch/step</td>
+            </tr>
+        </table>
+        
+        <h3>Using the Fine-Tuned Model</h3>
+        <div class="code-block">
+<span class="comment"># In your classification script, simply change the model path:</span>
+
+<span class="comment"># Before (base model):</span>
+model = AutoModelForSequenceClassification.from_pretrained(
+    <span class="string">"classla/xlm-roberta-base-multilingual-text-genre-classifier"</span>
+)
+
+<span class="comment"># After (fine-tuned model):</span>
+model = AutoModelForSequenceClassification.from_pretrained(
+    <span class="string">"./ovr_promo_ft"</span>  <span class="comment"># Your output directory</span>
+)
+
+<span class="comment"># Everything else remains the same!</span>
+<span class="comment"># The hybrid system (model + rules + ensemble) works identically</span>
+        </div>
+    </div>
+
+    <h2>Key Advantages of This Approach</h2>
+    
+    <div class="component-box">
+        <div class="success-box">
+            <strong>✅ Preserves Multi-Class Knowledge</strong><br>
+            The model still understands News, Opinion, Legal, etc. It doesn't become a pure binary classifier.
+        </div>
+        
+        <div class="success-box">
+            <strong>✅ Targeted Improvement</strong><br>
+            Specifically enhances "Promotion" detection without sacrificing performance on other genres.
+        </div>
+        
+        <div class="success-box">
+            <strong>✅ Balanced Training</strong><br>
+            Equal representation of ads and non-ads prevents bias toward either class.
+        </div>
+        
+        <div class="success-box">
+            <strong>✅ Seamless Integration</strong><br>
+            Drop-in replacement for the base model—no code changes needed in your classification pipeline.
+        </div>
+        
+        <div class="success-box">
+            <strong>✅ Multilingual Support</strong><br>
+            Fine-tunes across French, German, Luxembourgish without language-specific adjustments.
+        </div>
+    </div>
+
+    <h2>Hardware Considerations</h2>
+    
+    <div class="warning-box">
+        <strong>⚠️ Apple Silicon (M1/M2/M3) Warning</strong><br>
+        The script automatically detects Apple Silicon and uses CPU fallback. MPS (Metal Performance Shaders) can have memory issues with large transformer models. Training will be slower but stable.
+    </div>
+    
+    <div class="component-box">
+        <h3>Recommended Hardware</h3>
+        <ul>
+            <li><strong>NVIDIA GPU:</strong> 8GB+ VRAM (enables fp16 training for 2-3× speedup)</li>
+            <li><strong>CPU:</strong> 16GB+ RAM (slower but works reliably)</li>
+            <li><strong>Apple Silicon:</strong> Works, but forced to CPU mode</li>
+        </ul>
+    </div>
+
+    <div style="margin-top: 50px; padding-top: 20px; border-top: 2px solid #e0e0e0; text-align: center; color: #666;">
+        <p><strong>Fine-Tuning Complete! 🎉</strong></p>
+        <p>The enhanced model is now ready to use in your hybrid classification system.</p>
+    </div>
+</body>
+</html>

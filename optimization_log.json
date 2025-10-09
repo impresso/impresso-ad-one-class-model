@@ -1,0 +1,452 @@
+[
+  {
+    "rank_in_finalists": 1,
+    "params": {
+      "pool": "logits_mean",
+      "temperature": 1.5,
+      "short_bonus": 0.2,
+      "short_len": 30,
+      "min_words": 0,
+      "chunk_words": 200,
+      "max_length": 512,
+      "threshold_mode": "per_lang",
+      "ad_threshold": 0.2718375325202942,
+      "lang_thresholds": "other:0.8750,fr:0.2718"
+    },
+    "result": {
+      "metrics": {
+        "macro_f1": 0.9147420948368815,
+        "balanced_accuracy": 0.915,
+        "mcc": 0.8350675345296497,
+        "precision_non_ad": 0.9662921348314607,
+        "recall_non_ad": 0.86,
+        "f1_non_ad": 0.91005291005291,
+        "precision_ad": 0.8738738738738738,
+        "recall_ad": 0.97,
+        "f1_ad": 0.919431279620853,
+        "confusion_matrix": [
+          [
+            86,
+            14
+          ],
+          [
+            3,
+            97
+          ]
+        ],
+        "n_samples": 200,
+        "class_support": {
+          "non_ad": 100,
+          "ad": 100
+        }
+      },
+      "effective_samples": 200
+    },
+    "elapsed_sec": 13.342278957366943
+  },
+  {
+    "rank_in_finalists": 2,
+    "params": {
+      "pool": "logits_max",
+      "temperature": 1.2,
+      "short_bonus": 0.25,
+      "short_len": 50,
+      "min_words": 0,
+      "chunk_words": 200,
+      "max_length": 512,
+      "threshold_mode": "per_lang",
+      "ad_threshold": 0.8326413035392761,
+      "lang_thresholds": "other:0.9500,fr:0.3241"
+    },
+    "result": {
+      "metrics": {
+        "macro_f1": 0.9096748293857888,
+        "balanced_accuracy": 0.9099999999999999,
+        "mcc": 0.8259685381260148,
+        "precision_non_ad": 0.9659090909090909,
+        "recall_non_ad": 0.85,
+        "f1_non_ad": 0.9042553191489362,
+        "precision_ad": 0.8660714285714286,
+        "recall_ad": 0.97,
+        "f1_ad": 0.9150943396226415,
+        "confusion_matrix": [
+          [
+            85,
+            15
+          ],
+          [
+            3,
+            97
+          ]
+        ],
+        "n_samples": 200,
+        "class_support": {
+          "non_ad": 100,
+          "ad": 100
+        }
+      },
+      "effective_samples": 200
+    },
+    "elapsed_sec": 10.10106873512268
+  },
+  {
+    "rank_in_finalists": 3,
+    "params": {
+      "pool": "logits_max",
+      "temperature": 1.0,
+      "short_bonus": 0.25,
+      "short_len": 30,
+      "min_words": 3,
+      "chunk_words": 200,
+      "max_length": 512,
+      "threshold_mode": "per_lang",
+      "ad_threshold": 0.9104506969451904,
+      "lang_thresholds": "other:0.9810,fr:0.3792"
+    },
+    "result": {
+      "metrics": {
+        "macro_f1": 0.9197994987468672,
+        "balanced_accuracy": 0.9199999999999999,
+        "mcc": 0.8442317648177381,
+        "precision_non_ad": 0.9666666666666667,
+        "recall_non_ad": 0.87,
+        "f1_non_ad": 0.9157894736842105,
+        "precision_ad": 0.8818181818181818,
+        "recall_ad": 0.97,
+        "f1_ad": 0.9238095238095239,
+        "confusion_matrix": [
+          [
+            87,
+            13
+          ],
+          [
+            3,
+            97
+          ]
+        ],
+        "n_samples": 200,
+        "class_support": {
+          "non_ad": 100,
+          "ad": 100
+        }
+      },
+      "effective_samples": 200
+    },
+    "elapsed_sec": 9.80476689338684
+  },
+  {
+    "rank_in_finalists": 4,
+    "params": {
+      "pool": "logits_mean",
+      "temperature": 1.2,
+      "short_bonus": 0.15,
+      "short_len": 30,
+      "min_words": 3,
+      "chunk_words": 200,
+      "max_length": 512,
+      "threshold_mode": "per_lang",
+      "ad_threshold": 0.3241022229194641,
+      "lang_thresholds": "other:0.9500,fr:0.3241"
+    },
+    "result": {
+      "metrics": {
+        "macro_f1": 0.9147420948368815,
+        "balanced_accuracy": 0.915,
+        "mcc": 0.8350675345296497,
+        "precision_non_ad": 0.9662921348314607,
+        "recall_non_ad": 0.86,
+        "f1_non_ad": 0.91005291005291,
+        "precision_ad": 0.8738738738738738,
+        "recall_ad": 0.97,
+        "f1_ad": 0.919431279620853,
+        "confusion_matrix": [
+          [
+            86,
+            14
+          ],
+          [
+            3,
+            97
+          ]
+        ],
+        "n_samples": 200,
+        "class_support": {
+          "non_ad": 100,
+          "ad": 100
+        }
+      },
+      "effective_samples": 200
+    },
+    "elapsed_sec": 9.614441156387329
+  },
+  {
+    "rank_in_finalists": 5,
+    "params": {
+      "pool": "logits_max",
+      "temperature": 1.5,
+      "short_bonus": 0.2,
+      "short_len": 50,
+      "min_words": 0,
+      "chunk_words": 200,
+      "max_length": 512,
+      "threshold_mode": "per_lang",
+      "ad_threshold": 0.7066040635108948,
+      "lang_thresholds": "other:0.8750,fr:0.2718"
+    },
+    "result": {
+      "metrics": {
+        "macro_f1": 0.9096748293857888,
+        "balanced_accuracy": 0.9099999999999999,
+        "mcc": 0.8259685381260148,
+        "precision_non_ad": 0.9659090909090909,
+        "recall_non_ad": 0.85,
+        "f1_non_ad": 0.9042553191489362,
+        "precision_ad": 0.8660714285714286,
+        "recall_ad": 0.97,
+        "f1_ad": 0.9150943396226415,
+        "confusion_matrix": [
+          [
+            85,
+            15
+          ],
+          [
+            3,
+            97
+          ]
+        ],
+        "n_samples": 200,
+        "class_support": {
+          "non_ad": 100,
+          "ad": 100
+        }
+      },
+      "effective_samples": 200
+    },
+    "elapsed_sec": 9.868734121322632
+  },
+  {
+    "rank_in_finalists": 6,
+    "params": {
+      "pool": "logits_mean",
+      "temperature": 1.5,
+      "short_bonus": 0.15,
+      "short_len": 50,
+      "min_words": 3,
+      "chunk_words": 200,
+      "max_length": 512,
+      "threshold_mode": "per_lang",
+      "ad_threshold": 0.2718375325202942,
+      "lang_thresholds": "other:0.8750,fr:0.2718"
+    },
+    "result": {
+      "metrics": {
+        "macro_f1": 0.9147420948368815,
+        "balanced_accuracy": 0.915,
+        "mcc": 0.8350675345296497,
+        "precision_non_ad": 0.9662921348314607,
+        "recall_non_ad": 0.86,
+        "f1_non_ad": 0.91005291005291,
+        "precision_ad": 0.8738738738738738,
+        "recall_ad": 0.97,
+        "f1_ad": 0.919431279620853,
+        "confusion_matrix": [
+          [
+            86,
+            14
+          ],
+          [
+            3,
+            97
+          ]
+        ],
+        "n_samples": 200,
+        "class_support": {
+          "non_ad": 100,
+          "ad": 100
+        }
+      },
+      "effective_samples": 200
+    },
+    "elapsed_sec": 10.171438932418823
+  },
+  {
+    "rank_in_finalists": 7,
+    "params": {
+      "pool": "logits_max",
+      "temperature": 0.8,
+      "short_bonus": 0.15,
+      "short_len": 40,
+      "min_words": 0,
+      "chunk_words": 200,
+      "max_length": 512,
+      "threshold_mode": "per_lang",
+      "ad_threshold": 0.9670252799987793,
+      "lang_thresholds": "other:0.9956,fr:0.4638"
+    },
+    "result": {
+      "metrics": {
+        "macro_f1": 0.9147420948368815,
+        "balanced_accuracy": 0.915,
+        "mcc": 0.8350675345296497,
+        "precision_non_ad": 0.9662921348314607,
+        "recall_non_ad": 0.86,
+        "f1_non_ad": 0.91005291005291,
+        "precision_ad": 0.8738738738738738,
+        "recall_ad": 0.97,
+        "f1_ad": 0.919431279620853,
+        "confusion_matrix": [
+          [
+            86,
+            14
+          ],
+          [
+            3,
+            97
+          ]
+        ],
+        "n_samples": 200,
+        "class_support": {
+          "non_ad": 100,
+          "ad": 100
+        }
+      },
+      "effective_samples": 200
+    },
+    "elapsed_sec": 10.24056100845337
+  },
+  {
+    "rank_in_finalists": 8,
+    "params": {
+      "pool": "logits_max",
+      "temperature": 1.2,
+      "short_bonus": 0.2,
+      "short_len": 40,
+      "min_words": 3,
+      "chunk_words": 200,
+      "max_length": 512,
+      "threshold_mode": "per_lang",
+      "ad_threshold": 0.8326413035392761,
+      "lang_thresholds": "other:0.9500,fr:0.3241"
+    },
+    "result": {
+      "metrics": {
+        "macro_f1": 0.9147420948368815,
+        "balanced_accuracy": 0.915,
+        "mcc": 0.8350675345296497,
+        "precision_non_ad": 0.9662921348314607,
+        "recall_non_ad": 0.86,
+        "f1_non_ad": 0.91005291005291,
+        "precision_ad": 0.8738738738738738,
+        "recall_ad": 0.97,
+        "f1_ad": 0.919431279620853,
+        "confusion_matrix": [
+          [
+            86,
+            14
+          ],
+          [
+            3,
+            97
+          ]
+        ],
+        "n_samples": 200,
+        "class_support": {
+          "non_ad": 100,
+          "ad": 100
+        }
+      },
+      "effective_samples": 200
+    },
+    "elapsed_sec": 9.914917945861816
+  },
+  {
+    "rank_in_finalists": 9,
+    "params": {
+      "pool": "logits_mean",
+      "temperature": 1.0,
+      "short_bonus": 0.15,
+      "short_len": 30,
+      "min_words": 3,
+      "chunk_words": 200,
+      "max_length": 512,
+      "threshold_mode": "per_lang",
+      "ad_threshold": 0.37915629148483276,
+      "lang_thresholds": "other:0.9810,fr:0.3792"
+    },
+    "result": {
+      "metrics": {
+        "macro_f1": 0.9147420948368815,
+        "balanced_accuracy": 0.915,
+        "mcc": 0.8350675345296497,
+        "precision_non_ad": 0.9662921348314607,
+        "recall_non_ad": 0.86,
+        "f1_non_ad": 0.91005291005291,
+        "precision_ad": 0.8738738738738738,
+        "recall_ad": 0.97,
+        "f1_ad": 0.919431279620853,
+        "confusion_matrix": [
+          [
+            86,
+            14
+          ],
+          [
+            3,
+            97
+          ]
+        ],
+        "n_samples": 200,
+        "class_support": {
+          "non_ad": 100,
+          "ad": 100
+        }
+      },
+      "effective_samples": 200
+    },
+    "elapsed_sec": 9.759278059005737
+  },
+  {
+    "rank_in_finalists": 10,
+    "params": {
+      "pool": "logits_mean",
+      "temperature": 1.5,
+      "short_bonus": 0.25,
+      "short_len": 40,
+      "min_words": 0,
+      "chunk_words": 200,
+      "max_length": 512,
+      "threshold_mode": "per_lang",
+      "ad_threshold": 0.2718375325202942,
+      "lang_thresholds": "other:0.8750,fr:0.2718"
+    },
+    "result": {
+      "metrics": {
+        "macro_f1": 0.9045969219954307,
+        "balanced_accuracy": 0.905,
+        "mcc": 0.8169324941698156,
+        "precision_non_ad": 0.9655172413793104,
+        "recall_non_ad": 0.84,
+        "f1_non_ad": 0.8983957219251337,
+        "precision_ad": 0.8584070796460177,
+        "recall_ad": 0.97,
+        "f1_ad": 0.9107981220657277,
+        "confusion_matrix": [
+          [
+            84,
+            16
+          ],
+          [
+            3,
+            97
+          ]
+        ],
+        "n_samples": 200,
+        "class_support": {
+          "non_ad": 100,
+          "ad": 100
+        }
+      },
+      "effective_samples": 200
+    },
+    "elapsed_sec": 9.919132947921753
+  }
+]

@@ -1,0 +1,792 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ad Classification System - Technical Documentation</title>
+    <style>
+        @media print {
+            body { margin: 0; }
+            .page-break { page-break-after: always; }
+            .no-print { display: none; }
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.7;
+            color: #2c3e50;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 40px 60px;
+            background: white;
+        }
+        
+        h1 {
+            color: #2c3e50;
+            border-bottom: 4px solid #3498db;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+            font-size: 32px;
+        }
+        
+        h2 {
+            color: #34495e;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            font-size: 24px;
+            border-left: 5px solid #3498db;
+            padding-left: 15px;
+            background: linear-gradient(to right, #f0f8ff, transparent);
+        }
+        
+        h3 {
+            color: #555;
+            margin-top: 25px;
+            margin-bottom: 15px;
+            font-size: 18px;
+            font-weight: 600;
+        }
+        
+        h4 {
+            color: #666;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-size: 16px;
+            font-weight: 600;
+        }
+        
+        .toc {
+            background: #f8f9fa;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 30px 0;
+        }
+        
+        .toc h3 {
+            margin-top: 0;
+            color: #2c3e50;
+        }
+        
+        .toc ul {
+            list-style: none;
+            padding-left: 0;
+        }
+        
+        .toc li {
+            margin: 8px 0;
+            padding-left: 20px;
+            position: relative;
+        }
+        
+        .toc li:before {
+            content: "▸";
+            position: absolute;
+            left: 0;
+            color: #3498db;
+        }
+        
+        .component-box {
+            background: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 25px;
+            margin: 25px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .highlight-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .success-box {
+            background: #d4edda;
+            border-left: 4px solid #28a745;
+            padding: 15px;
+            margin: 20px 0;
+            border-radius: 4px;
+        }
+        
+        .contribution-bar {
+            display: flex;
+            align-items: center;
+            margin: 15px 0;
+        }
+        
+        .contribution-label {
+            width: 180px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        
+        .bar-container {
+            flex: 1;
+            height: 30px;
+            background: #e9ecef;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 0 10px;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .bar-fill {
+            height: 100%;
+            display: flex;
+            align-items: center;
+            padding: 0 12px;
+            color: white;
+            font-size: 13px;
+            font-weight: 600;
+        }
+        
+        .model-bar { 
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .rule-bar { 
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+        }
+        .ensemble-bar { 
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        .feature-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 18px;
+            margin: 20px 0;
+        }
+        
+        .feature-item {
+            background: white;
+            border: 2px solid #e3f2fd;
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.3s;
+        }
+        
+        .feature-item:hover {
+            border-color: #3498db;
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.2);
+        }
+        
+        .feature-weight {
+            color: #fff;
+            background: #3498db;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+            float: right;
+        }
+        
+        .formula {
+            background: #263238;
+            color: #aed581;
+            padding: 15px 20px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            margin: 20px 0;
+            overflow-x: auto;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+        }
+        
+        .code-block {
+            background: #f4f4f4;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            padding: 15px;
+            margin: 20px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+        }
+        
+        .code-block .comment {
+            color: #6a737d;
+        }
+        
+        .code-block .keyword {
+            color: #d73a49;
+            font-weight: bold;
+        }
+        
+        .code-block .string {
+            color: #032f62;
+        }
+        
+        .code-block .number {
+            color: #005cc5;
+        }
+        
+        .diagram {
+            background: white;
+            border: 2px solid #3498db;
+            border-radius: 10px;
+            padding: 30px;
+            margin: 30px 0;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        
+        .flow-container {
+            display: flex;
+            justify-content: space-around;
+            align-items: start;
+            margin: 20px 0;
+        }
+        
+        .flow-column {
+            flex: 1;
+            margin: 0 10px;
+        }
+        
+        .flow-step {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 15px auto;
+            max-width: 250px;
+            text-align: center;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        .flow-step.secondary {
+            background: linear-gradient(135deg, #84fab0 0%, #8fd3f4 100%);
+        }
+        
+        .flow-step.tertiary {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+        }
+        
+        .arrow {
+            font-size: 28px;
+            color: #3498db;
+            margin: 10px 0;
+            text-align: center;
+        }
+        
+        .arrow-right {
+            font-size: 24px;
+            color: #3498db;
+            text-align: center;
+            margin: 20px 0;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        th {
+            background: #3498db;
+            color: white;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        td {
+            padding: 10px 12px;
+            border-bottom: 1px solid #e0e0e0;
+        }
+        
+        tr:hover {
+            background: #f5f5f5;
+        }
+        
+        .metric-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 15px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #3498db;
+        }
+        
+        .scenario-box {
+            background: #f0f8ff;
+            border: 2px solid #3498db;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .scenario-header {
+            background: #3498db;
+            color: white;
+            padding: 10px;
+            margin: -20px -20px 15px -20px;
+            border-radius: 6px 6px 0 0;
+            font-weight: bold;
+        }
+        
+        .legend {
+            display: flex;
+            gap: 20px;
+            justify-content: center;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+        
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Ad Classification System - Technical Documentation</h1>
+    
+    <p style="font-style: italic; color: #666; font-size: 18px;">
+        Complete technical guide for the hybrid advertisement detection system combining XLM-RoBERTa deep learning with rule-based heuristics
+    </p>
+    
+    <div class="toc">
+        <h3>📚 Table of Contents</h3>
+        <ul>
+            <li>1. System Architecture Overview</li>
+            <li>2. Deep Learning Model Component</li>
+            <li>3. Ensemble Signal Explained</li>
+            <li>4. Rule-Based System Deep Dive</li>
+            <li>5. Dynamic Contribution Mechanism</li>
+            <li>6. Threshold Adaptation System</li>
+            <li>7. Implementation Examples</li>
+            <li>8. Debugging & Maintenance</li>
+            <li>9. Performance Metrics</li>
+        </ul>
+    </div>
+
+    <h2>1. System Architecture Overview</h2>
+    
+    <div class="diagram">
+        <h3 style="text-align: center;">Complete Classification Pipeline</h3>
+        
+        <div class="flow-container">
+            <div class="flow-column">
+                <div class="flow-step">
+                    📄 Raw Input Text<br>
+                    <small>(Any language)</small>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-step secondary">
+                    Text Normalization<br>
+                    <small>Clean OCR, spaces</small>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-step secondary">
+                    Language Detection<br>
+                    <small>FR, DE, LB, Other</small>
+                </div>
+            </div>
+            
+            <div class="flow-column">
+                <div class="arrow" style="margin-top: 150px;">→</div>
+            </div>
+            
+            <div class="flow-column">
+                <div class="flow-step">
+                    Model Processing<br>
+                    <small>XLM-RoBERTa</small>
+                </div>
+                <div class="flow-step secondary">
+                    Rule Extraction<br>
+                    <small>9 feature types</small>
+                </div>
+                <div class="flow-step tertiary">
+                    Ensemble Analysis<br>
+                    <small>All genre probabilities</small>
+                </div>
+            </div>
+            
+            <div class="flow-column">
+                <div class="arrow" style="margin-top: 150px;">→</div>
+            </div>
+            
+            <div class="flow-column">
+                <div class="flow-step tertiary">
+                    Score Fusion<br>
+                    <small>Weighted combination</small>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-step">
+                    Adaptive Threshold<br>
+                    <small>Context-aware</small>
+                </div>
+                <div class="arrow">↓</div>
+                <div class="flow-step secondary">
+                    ✅ Final Decision<br>
+                    <small>Ad / Non-Ad</small>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h2>2. Deep Learning Model Component</h2>
+    
+    <div class="component-box">
+        <h3>Model Specifications</h3>
+        
+        <table>
+            <tr>
+                <th>Property</th>
+                <th>Value</th>
+                <th>Notes</th>
+            </tr>
+            <tr>
+                <td><strong>Model Name</strong></td>
+                <td>classla/xlm-roberta-base-multilingual-text-genre-classifier</td>
+                <td>Pre-trained on genre classification</td>
+            </tr>
+            <tr>
+                <td><strong>Architecture</strong></td>
+                <td>XLM-RoBERTa Base</td>
+                <td>Transformer-based, 12 layers</td>
+            </tr>
+            <tr>
+                <td><strong>Max Tokens</strong></td>
+                <td>512</td>
+                <td>Per chunk</td>
+            </tr>
+            <tr>
+                <td><strong>Output Classes</strong></td>
+                <td>Multiple genres including "Promotion"</td>
+                <td>We focus on Promotion probability</td>
+            </tr>
+            <tr>
+                <td><strong>Batch Size</strong></td>
+                <td>16 (default)</td>
+                <td>Configurable via --batch_size</td>
+            </tr>
+        </table>
+        
+        <h3>Text Chunking Strategy</h3>
+        <div class="code-block">
+<span class="comment"># For long documents, we chunk by words</span>
+<span class="keyword">def</span> chunk_words(text: str, max_words: int):
+    <span class="keyword">if</span> max_words <= <span class="number">0</span>:
+        <span class="keyword">yield</span> text
+        <span class="keyword">return</span>
+    
+    words = text.split()
+    <span class="keyword">for</span> i <span class="keyword">in</span> range(<span class="number">0</span>, len(words), max_words):
+        <span class="keyword">yield</span> <span class="string">" "</span>.join(words[i:i+max_words])
+
+<span class="comment"># Default: --chunk_words 200</span>
+        </div>
+        
+        <h3>Pooling Methods for Multiple Chunks</h3>
+        <div class="highlight-box">
+            <strong>Recommended:</strong> <code>logits_weighted</code> (default)<br>
+            This method weights chunks by their word count, giving more importance to longer chunks.
+        </div>
+        
+        <div class="formula">
+            pooled_logits = Σ(chunk_logits × chunk_weight)<br>
+            where chunk_weight = chunk_words / total_words<br>
+            final_probs = softmax(pooled_logits / temperature)
+        </div>
+    </div>
+
+    <div class="page-break"></div>
+
+    <h2>3. Ensemble Signal Explained 🎯</h2>
+    
+    <div class="component-box">
+        <h3>What is the Ensemble Signal?</h3>
+        <p>The ensemble signal is an additional indicator derived from <strong>ALL genre predictions</strong> the model makes, not just the "Promotion" class. It looks for related commercial indicators across multiple genre labels.</p>
+        
+        <div class="scenario-box">
+            <div class="scenario-header">Example: How Ensemble Works</div>
+            <p>Let's say the model outputs these probabilities for a text:</p>
+            <ul>
+                <li>Promotion: 0.45 (below threshold!)</li>
+                <li>Business: 0.25</li>
+                <li>News: 0.20</li>
+                <li>Commercial: 0.10</li>
+            </ul>
+            <p>The ensemble signal would combine commercial-related classes:</p>
+            <div class="formula">
+                ensemble_signal = Promotion(0.45) + Commercial(0.10) + Business(0.25 × 0.3)<br>
+                ensemble_signal = 0.45 + 0.10 + 0.075 = 0.625
+            </div>
+            <p>Even though "Promotion" alone was below threshold, the ensemble detects commercial intent!</p>
+        </div>
+        
+        <h3>Ensemble Calculation Code</h3>
+        <div class="code-block">
+<span class="keyword">def</span> calculate_ensemble_ad_signal(promo_prob, top_label, all_probs, id2label):
+    <span class="comment"># Labels indicating direct commercial content</span>
+    commercial_labels = [<span class="string">"Promotion"</span>, <span class="string">"Advertisement"</span>, <span class="string">"Commercial"</span>, <span class="string">"Classified"</span>]
+    
+    <span class="comment"># Labels with indirect commercial signals (weighted lower)</span>
+    business_labels = [<span class="string">"Business"</span>, <span class="string">"Economic"</span>, <span class="string">"Financial"</span>]
+    
+    commercial_prob = <span class="number">0.0</span>
+    business_prob = <span class="number">0.0</span>
+    
+    <span class="keyword">for</span> idx, prob <span class="keyword">in</span> enumerate(all_probs):
+        label = id2label.get(idx, <span class="string">""</span>)
+        
+        <span class="comment"># Full weight for direct commercial labels</span>
+        <span class="keyword">if</span> any(cl.lower() <span class="keyword">in</span> label.lower() <span class="keyword">for</span> cl <span class="keyword">in</span> commercial_labels):
+            commercial_prob += prob
+            
+        <span class="comment"># 30% weight for business-related labels</span>
+        <span class="keyword">elif</span> any(bl.lower() <span class="keyword">in</span> label.lower() <span class="keyword">for</span> bl <span class="keyword">in</span> business_labels):
+            business_prob += prob * <span class="number">0.3</span>
+    
+    <span class="comment"># Combine and cap at 1.0</span>
+    ensemble_signal = min(<span class="number">1.0</span>, commercial_prob + business_prob)
+    <span class="keyword">return</span> ensemble_signal
+        </div>
+        
+        <h3>Final Score Integration</h3>
+        <div class="contribution-bar">
+            <span class="contribution-label">Promotion Probability</span>
+            <div class="bar-container">
+                <div class="bar-fill model-bar" style="width: 85%;">85%</div>
+            </div>
+        </div>
+        
+        <div class="contribution-bar">
+            <span class="contribution-label">Ensemble Signal</span>
+            <div class="bar-container">
+                <div class="bar-fill ensemble-bar" style="width: 15%;">15%</div>
+            </div>
+        </div>
+        
+        <div class="formula">
+            base_score = (promotion_prob × 0.85) + (ensemble_signal × 0.15)
+        </div>
+    </div>
+
+    <h2>4. Rule-Based System Deep Dive 🔍</h2>
+    
+    <div class="component-box">
+        <h3>Complete Feature Extraction System</h3>
+        
+        <div class="feature-grid">
+            <div class="feature-item">
+                <span>Price Detection</span>
+                <span class="feature-weight">2.0</span>
+                <hr style="border: 0.5px solid #e0e0e0; margin: 10px 0;">
+                <strong>Regex Pattern:</strong>
+                <div class="code-block" style="margin: 10px 0; font-size: 11px;">
+(?:CHF|SFr\.?|Fr\.?|€|\$)\s?\d{1,4}(?:[',\s.]\d{3})*
+                </div>
+                <strong>Matches:</strong> CHF 1'500, €2,300, Fr. 450.-
+            </div>
+            
+            <div class="feature-item">
+                <span>Phone Numbers</span>
+                <span class="feature-weight">2.0</span>
+                <hr style="border: 0.5px solid #e0e0e0; margin: 10px 0;">
+                <strong>Regex Pattern:</strong>
+                <div class="code-block" style="margin: 10px 0; font-size: 11px;">
+(?:\+?\d{2,3}[\s./-]?)?(?:\(?0\d{1,3}\)?[\s./-]?)\d+
+                </div>
+                <strong>Matches:</strong> +41 79 123 4567, 022-345-67-89
+            </div>
+            
+            <div class="feature-item">
+                <span>Ad Keywords</span>
+                <span class="feature-weight">1.5</span>
+                <hr style="border: 0.5px solid #e0e0e0; margin: 10px 0;">
+                <strong>French:</strong> à vendre, à louer, urgent<br>
+                <strong>German:</strong> zu verkaufen, zu vermieten<br>
+                <strong>Luxembourgish:</strong> ze verkafen, ze verlounen
+            </div>
+            
+            <div class="feature-item">
+                <span>Area (m²)</span>
+                <span class="feature-weight">1.0</span>
+                <hr style="border: 0.5px solid #e0e0e0; margin: 10px 0;">
+                <strong>Pattern:</strong> \b\d{2,4}\s?m(?:²|2)\b<br>
+                <strong>Matches:</strong> 85m², 120 m2<br>
+                <strong>Use:</strong> Real estate ads
+            </div>
+            
+            <div class="feature-item">
+                <span>Room Count</span>
+                <span class="feature-weight">1.0</span>
+                <hr style="border: 0.5px solid #e0e0e0; margin: 10px 0;">
+                <strong>Pattern:</strong> \b\d{1,2}\s?pièces?\b<br>
+                <strong>Matches:</strong> 3 pièces, 4.5 pièces<br>
+                <strong>Use:</strong> Apartment listings
+            </div>
+            
+            <div class="feature-item">
+                <span>Street Addresses</span>
+                <span class="feature-weight">0.8</span>
+                <hr style="border: 0.5px solid #e0e0e0; margin: 10px 0;">
+                <strong>Keywords:</strong> Rue, Avenue, Platz, Strasse<br>
+                <strong>Use:</strong> Location indicators
+            </div>
+            
+            <div class="feature-item">
+                <span>ZIP Codes</span>
+                <span class="feature-weight">0.5</span>
+                <hr style="border: 0.5px solid #e0e0e0; margin: 10px 0;">
+                <strong>Pattern:</strong> \b\d{4}\b (Swiss format)<br>
+                <strong>Matches:</strong> 1200, 8001<br>
+                <strong>Note:</strong> Can be year, needs context
+            </div>
+            
+            <div class="feature-item">
+                <span>Year/Kilometers</span>
+                <span class="feature-weight">0.3</span>
+                <hr style="border: 0.5px solid #e0e0e0; margin: 10px 0;">
+                <strong>Year:</strong> (19|20)\d{2}<br>
+                <strong>KM:</strong> \d{1,3}'?\d{3}\s?km<br>
+                <strong>Use:</strong> Vehicle ads
+            </div>
+        </div>
+        
+        <h3>Rule Score Calculation</h3>
+        <div class="code-block">
+<span class="keyword">def</span> calculate_rule_score_and_confidence(flags):
+    <span class="comment"># Weighted sum of all features</span>
+    rule_score = (
+        <span class="number">2.0</span> * float(flags[<span class="string">"has_price"</span>])    <span class="comment"># Strong indicator</span>
+        + <span class="number">2.0</span> * float(flags[<span class="string">"has_phone"</span>])   <span class="comment"># Strong indicator</span>
+        + <span class="number">1.5</span> * float(flags[<span class="string">"has_cue"</span>])     <span class="comment"># Medium-strong</span>
+        + <span class="number">1.0</span> * float(flags[<span class="string">"has_area"</span>])    <span class="comment"># Medium</span>
+        + <span class="number">1.0</span> * float(flags[<span class="string">"has_rooms"</span>])   <span class="comment"># Medium</span>
+        + <span class="number">0.8</span> * float(flags[<span class="string">"has_address"</span>]) <span class="comment"># Medium</span>
+        + <span class="number">0.5</span> * float(flags[<span class="string">"has_zip"</span>])     <span class="comment"># Weak</span>
+        + <span class="number">0.3</span> * float(flags[<span class="string">"has_year"</span>])    <span class="comment"># Weak</span>
+        + <span class="number">0.3</span> * float(flags[<span class="string">"has_km"</span>])      <span class="comment"># Weak</span>
+    )
+    
+    <span class="comment"># Calculate confidence based on indicator strength</span>
+    strong_indicators = flags[<span class="string">"has_price"</span>] + flags[<span class="string">"has_phone"</span>]
+    medium_indicators = flags[<span class="string">"has_cue"</span>] + flags[<span class="string">"has_area"</span>] + flags[<span class="string">"has_rooms"</span>]
+    weak_indicators = flags[<span class="string">"has_address"</span>] + flags[<span class="string">"has_zip"</span>] + flags[<span class="string">"has_year"</span>] + flags[<span class="string">"has_km"</span>]
+    
+    rule_confidence = min(<span class="number">1.0</span>, 
+        strong_indicators * <span class="number">0.4</span> + 
+        medium_indicators * <span class="number">0.2</span> + 
+        weak_indicators * <span class="number">0.1</span>
+    )
+    
+    <span class="keyword">return</span> rule_score, rule_confidence
+        </div>
+    </div>
+
+    <h2>5. Dynamic Contribution Mechanism 🎛️</h2>
+    
+    <div class="component-box">
+        <h3>How Rules Contribute Dynamically</h3>
+        
+        <div class="warning-box">
+            <strong>Key Concept:</strong> Rules contribute MORE when the model is UNCERTAIN, and LESS when the model is CONFIDENT.
+        </div>
+        
+        <div class="formula">
+            model_confidence = |promotion_probability - 0.5| × 2<br>
+            model_uncertainty = 1.0 - model_confidence<br>
+            rule_influence_multiplier = 0.3 + (model_uncertainty × 1.2)
+        </div>
+        
+        <h3>Contribution Scenarios</h3>
+        
+        <div class="scenario-box">
+            <div class="scenario-header">Scenario 1: Model is Uncertain (prob = 0.52)</div>
+            <ul>
+                <li>Model confidence = |0.52 - 0.5| × 2 = 0.04 (very low!)</li>
+                <li>Model uncertainty = 1.0 - 0.04 = 0.96</li>
+                <li>Rule influence = 0.3 + (0.96 × 1.2) = 1.452</li>
+                <li><strong>Result:</strong> Rules can contribute up to ~30% to final decision</li>
+            </ul>
+        </div>
+        
+        <div class="scenario-box">
+            <div class="scenario-header">Scenario 2: Model is Confident (prob = 0.85)</div>
+            <ul>
+                <li>Model confidence = |0.85 - 0.5| × 2 = 0.70</li>
+                <li>Model uncertainty = 1.0 - 0.70 = 0.30</li>
+                <li>Rule influence = 0.3 + (0.30 × 1.2) = 0.66</li>
+                <li><strong>Result:</strong> Rules contribute minimally (~5-10% max)</li>
+            </ul>
+        </div>
+        
+        <h3>Maximum Rule Contribution Table</h3>
+        <table>
+            <tr>
+                <th>Model Probability</th>
+                <th>Model Confidence</th>
+                <th>Rule Influence Multiplier</th>
+                <th>Max Rule Contribution</th>
+            </tr>
+            <tr>
+                <td>0.50 (exactly uncertain)</td>
+                <td>0.00</td>
+                <td>1.50</td>
+                <td>~35%</td>
+            </tr>
+            <tr>
+                <td>0.55 or 0.45</td>
+                <td>0.10</td>
+                <td>1.38</td>
+                <td>~30%</td>
+            </tr>
+            <tr>
+                <td>0.60 or 0.40</td>
+                <td>0.20</td>
+                <td>1.26</td>
+                <td>~25%</td>
+            </tr>
+            <tr>
+                <td>0.70 or 0.30</td>
+                <td>0.40</td>
+                <td>1.02</td>
+                <td>~15%</td>
+            </tr>
+            <tr>
+                <td>0.80 or 0.20</td>
+                <td>0.60</td>
+                <td>0.78</td>
+                <td>~10%</td>
+            </tr>
+            <tr>
+                <td>0.90 or 0.10</td>
+                <td>0.80</td>
+                <td>0.54</td>
+                <td>~5%</td>
+            </tr>
+            <tr>
+                <td>0.95 or 0.05</td>
+                <td>0.90</td>
+                <td>0.42</td>
+                <td>~2%</td>
+            </tr>
+        </table>
+        

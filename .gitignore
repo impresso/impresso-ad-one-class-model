@@ -32,3 +32,7 @@ Makefile.myprocessing
 Pipfile.lock
 */__pycache__output.jsonl
 output.jsonl
+
+
+fine_tuned_xlm
+.venv

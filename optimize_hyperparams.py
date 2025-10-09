@@ -5,8 +5,8 @@ Uses internal caching for speed during search, validates with model_approach.py.
 
 Usage:
 python optimize_hyperparams.py \
-  --ads ads_ground_truth.jsonl \
-  --non_ads non_ads_ground_truth.jsonl \
+  --ads ads_100_for_hyperparameters.jsonl \
+  --non_ads non_ads_100_for_hyperparameters.jsonl \
   --output best_params.json \
   --max_configs 120
 
@@ -737,7 +737,8 @@ def parse_args():
     ap.add_argument('--log', default='optimization_log.json', help='Detailed log of finalists')
 
     # Model and runtime
-    ap.add_argument('--model', default='classla/xlm-roberta-base-multilingual-text-genre-classifier', help='HF model id')
+    # ap.add_argument('--model', default='classla/xlm-roberta-base-multilingual-text-genre-classifier', help='HF model id')
+    ap.add_argument('--model', default='fine_tuned_xlm', help='HF model id')
     ap.add_argument('--max_configs', type=int, default=100, help='Max configs to explore')
     ap.add_argument('--seed', type=int, default=42)
     ap.add_argument('--cache_batch_size', type=int, default=16, help='Batch size for caching')
