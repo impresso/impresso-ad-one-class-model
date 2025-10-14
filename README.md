@@ -7,28 +7,6 @@ This README provides a quick setup guide. For comprehensive technical details:
 - **🔧 [Fine-Tuning Documentation](finetuning_doc.html)** - One-vs-Rest training approach, data preparation details
 - **📖 [Classification System Documentation](ad-classification-doc.html)** - Complete architecture, ensemble method, rule-based features
 
-> **📖 View Pretty Documentation:** If this repository has GitHub Pages enabled, you can view the formatted documentation at:
-> - [Fine-Tuning Guide](https://yourusername.github.io/repository-name/finetuning_doc.html)
-> - [Classification System](https://yourusername.github.io/repository-name/ad-classification-doc.html)
-
----
-
-## 🌐 Viewing Documentation
-
-### Option 1: GitHub Pages (Best Experience)
-1. Go to repository Settings → Pages
-2. Set source to "Deploy from a branch" → main branch
-3. Your docs will be available at: `https://yourusername.github.io/repository-name/`
-
-### Option 2: Raw HTML Links
-- [Fine-Tuning Documentation (Raw)](https://raw.githubusercontent.com/yourusername/repository-name/main/finetuning_doc.html)
-- [Classification Documentation (Raw)](https://raw.githubusercontent.com/yourusername/repository-name/main/ad-classification-doc.html)
-
-*Copy the raw URL and paste into [htmlpreview.github.io](http://htmlpreview.github.io) to view formatted*
-
-### Option 3: Local Viewing
-Clone the repository and open the HTML files in your browser for the full formatted experience.
-
 ---
 
 ## 📊 Data Preparation
