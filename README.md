@@ -1,5 +1,14 @@
 # Ad Classification Model - Setup Guide
 
+## 📚 Documentation Suite
+
+This README provides a quick setup guide. For comprehensive technical details:
+
+- **🔧 [Fine-Tuning Documentation](finetuning_doc.html)** - One-vs-Rest training approach, data preparation details
+- **📖 [Classification System Documentation](ad-classification-doc.html)** - Complete architecture, ensemble method, rule-based features
+
+---
+
 ## 📊 Data Preparation
 
 ### Required Datasets
@@ -54,8 +63,8 @@ This classifier uses a **hybrid approach** combining:
 The model is fine-tuned using an "ads vs. rest" approach, adapting the default 9-class classifier to better understand your historical data.
 
 📖 **Detailed documentation:**
-- Classification approach: `ad-classification-doc.html`
-- Fine-tuning details: `finetuning_doc.html`
+- **[Classification approach →](ad-classification-doc.html)** - Technical deep-dive into the hybrid system
+- **[Fine-tuning details →](finetuning_doc.html)** - One-vs-Rest training methodology
 
 ---
 
@@ -74,6 +83,8 @@ python fine_tune_xgenre.py \
 ```
 
 **Note:** Save the model to your specified `output_dir` - you'll need this path for the next steps.
+
+💡 **Need help with fine-tuning?** See the [detailed fine-tuning guide](finetuning_doc.html) for complete parameter explanations and troubleshooting.
 
 ### Step 2: Update Model Path
 
@@ -111,8 +122,10 @@ The script automatically uses the optimized parameters from `best_params.json`.
 ## 📝 Summary
 
 1. **Prepare** your datasets (fine-tuning, hyperparameter tuning, evaluation)
-2. **Fine-tune** the model with your data
+2. **Fine-tune** the model with your data ([detailed guide](finetuning_doc.html))
 3. **Optimize** hyperparameters for best performance
 4. **Evaluate** on the test set to measure accuracy
+
+📖 **For technical details:** Check the [complete system documentation](ad-classification-doc.html)
 
 For questions or additional support, please don't hesitate to reach out!
