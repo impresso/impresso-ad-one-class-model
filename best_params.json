@@ -7,7 +7,7 @@
     "min_words": 0,
     "chunk_words": 200,
     "max_length": 512,
-    "ad_threshold": 0.474738,
+    "ad_threshold": 0.379159,
     "lang_thresholds": "",
     "model": "classla/xlm-roberta-base-multilingual-text-genre-classifier"
   },

@@ -5,9 +5,9 @@ of the fine-tuned model on your validation data.
 
 Usage:
 python calibrate_finetuned_model.py \
-    --ads ads_100_for_hyperparameters.jsonl \
-    --non_ads non_ads_1000_for_hyperparameters.jsonl \
-    --model_dir ./ovr_promo_ft \
+    --ads ads_50_for_hyperparameters.jsonl \
+    --non_ads non_ads_50_for_hyperparameters.jsonl \
+    --model_dir ./fine_tuned_xlm \
     --output calibration_results.json
 """
 
