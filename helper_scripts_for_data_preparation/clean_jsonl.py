@@ -227,7 +227,7 @@ if __name__ == "__main__":
     parser.add_argument("--input-path", required=True, help="Path to the input JSONL file.")
     parser.add_argument("--keys", nargs='*', default=["id", "lg", "ft"], help="List of keys to keep in the output file (default: id, lg, ft).")
     parser.add_argument("--min-ft-length", type=int, default=15, help="Minimum length for the 'ft' field (default: 15).")
-    parser.add_argument("--max-ft-length", type=int, default=3000, help="Maximum length for the 'ft' field (default: 400).")
+    parser.add_argument("--max-ft-length", type=int, default=7100, help="Maximum length for the 'ft' field (default: 400).")
     parser.add_argument("--ocr-threshold", type=float, default=None, help="Minimum OCR quality score (default: None - no OCR filtering).")
     parser.add_argument("--s3-prefix", type=str, default="s3://42-impresso-final/rebuilt_data_rebuilt-wp_v1.0.6_v1-0-0", help="S3 prefix for loading OCRQA scores (default: s3://42-impresso-final/rebuilt_data_rebuilt-wp_v1.0.6_v1-0-0).")
     parser.add_argument("--lang", type=str, help="Target language code to filter by (e.g., 'fr', 'de'). Will filter records and append to output filename.")
