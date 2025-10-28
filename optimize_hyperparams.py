@@ -5,10 +5,11 @@ Uses internal caching for speed during search, validates with model_approach.py.
 
 Usage:
 python optimize_hyperparams.py \
-  --ads ads_100_for_hyperparameters.jsonl \
-  --non_ads non_ads_100_for_hyperparameters.jsonl \
-  --output best_params.json \
-  --max_configs 120
+  --ads cross-validation-cleaning/ads_hyperparameters.jsonl \
+  --non_ads cross-validation-cleaning/non_ads_hyperparameters.jsonl \
+  --output cross-validation-cleaning/best_params/best_params_fold_1.json \
+  --max_configs 120 \
+  --model fine_tuned_xlm_fold_1
 
 This version:
 - Caches model logits internally for fast configuration search
@@ -738,7 +739,7 @@ def parse_args():
 
     # Model and runtime
     # ap.add_argument('--model', default='classla/xlm-roberta-base-multilingual-text-genre-classifier', help='HF model id')
-    ap.add_argument('--model', default='fine_tuned_xlm', help='HF model id')
+    ap.add_argument('--model', default='fine_tuned_xlm_fold_1', help='HF model id')
     ap.add_argument('--max_configs', type=int, default=100, help='Max configs to explore')
     ap.add_argument('--seed', type=int, default=42)
     ap.add_argument('--cache_batch_size', type=int, default=16, help='Batch size for caching')

@@ -316,8 +316,9 @@ def main():
     device = "cuda" if torch.cuda.is_available() else ("mps" if getattr(torch.backends,'mps',None) and torch.backends.mps.is_available() else "cpu")
     tokenizer = AutoTokenizer.from_pretrained(args.model)
     # model = AutoModelForSequenceClassification.from_pretrained(args.model)
-    model = AutoModelForSequenceClassification.from_pretrained('./fine_tuned_xlm')  # use fine-tuned model
+    model = AutoModelForSequenceClassification.from_pretrained(args.model)  # use fine-tuned model
     model.to(device).eval()
+    print("Model approach using model: ", args.model, "on device:", device)
 
     id2label = model.config.id2label
     label2id = {v:k for k,v in id2label.items()}

@@ -4,7 +4,7 @@ Uses One-vs-Rest approach: enhances the Promotion class detection while preservi
 the model's multi-class genre classification capabilities.
 
 Usage:
-python fine_tune_xgenre.py \
+python fine_tune_model.py \
     --ads ads_3800_finetuning.jsonl \
     --non_ads non_ads_3800_finetuning.jsonl \
     --output_dir ./fine_tuned_xlm \
@@ -239,7 +239,20 @@ def main():
     # Load tokenizer and model
     print(f"Loading model: {args.model}")
     tokenizer = AutoTokenizer.from_pretrained(args.model)
+    
+    # Determine device - MPS support
+    if torch.backends.mps.is_available():
+        device = torch.device("mps")
+        print(f"Using device: MPS (Apple Silicon)")
+    elif torch.cuda.is_available():
+        device = torch.device("cuda")
+        print(f"Using device: CUDA")
+    else:
+        device = torch.device("cpu")
+        print(f"Using device: CPU")
+    
     model = AutoModelForSequenceClassification.from_pretrained(args.model)
+    model = model.to(device)
     
     # Prepare dataset
     print("\nPreparing dataset...")
@@ -266,6 +279,7 @@ def main():
         "seed": args.seed,
         "report_to": "none",
         "push_to_hub": False,
+        "use_cpu": False,  # Don't force CPU
     }
     
     # Add evaluation and save strategy (parameter names vary by version)
@@ -285,16 +299,9 @@ def main():
         training_args_dict["save_steps"] = args.save_steps
         training_args = TrainingArguments(**training_args_dict)
     
-    # Add fp16 if CUDA is available (not for MPS/Apple Silicon)
+    # Only add fp16 for CUDA (not MPS or CPU)
     if torch.cuda.is_available():
         training_args.fp16 = True
-    
-    # For Apple Silicon (MPS), ensure we don't use fp16 and print memory warning
-    if hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
-        print("\n⚠️  Detected Apple Silicon (MPS). Using CPU fallback for stability.")
-        print("   MPS can have memory issues with large models. Training will use CPU.")
-        device = torch.device("cpu")
-        model = model.to(device)
     
     # Create trainer with custom metrics
     trainer = Trainer(

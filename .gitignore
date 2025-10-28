@@ -35,4 +35,9 @@ output.jsonl
 
 
 fine_tuned_xlm
+fine_tuned_xlm_fold_1
+fine_tuned_xlm_fold_2
+fine_tuned_xlm_fold_3
+fine_tuned_xlm_fold_4
 .venv
+cross-validation-cleaning
