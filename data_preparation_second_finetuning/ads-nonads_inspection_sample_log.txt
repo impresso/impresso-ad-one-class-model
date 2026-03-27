@@ -1,0 +1,19 @@
+2026-03-24 15:56:25,608 common.py:259 INFO: Found 13234 objects with prefix content-item-classification/content-item-classification-base-multilingual_v1-0-0/
+2026-03-24 15:56:25,724 sample_balanced_articles.py:343 INFO: Files scanned: 6617
+2026-03-24 15:56:25,725 sample_balanced_articles.py:344 INFO: Rows read: 69541695
+2026-03-24 15:56:25,725 sample_balanced_articles.py:345 INFO: Article rows seen (tp=ar): 43902639
+2026-03-24 15:56:25,725 sample_balanced_articles.py:346 INFO: Classified rows seen: 43902639
+2026-03-24 15:56:25,725 sample_balanced_articles.py:347 INFO: Complete newspaper-year groups written: 5892
+2026-03-24 15:56:25,725 sample_balanced_articles.py:348 INFO: Output rows written: 11784
+2026-03-24 15:56:25,725 sample_balanced_articles.py:350 WARNING: Skipped incomplete groups: 11
+2026-03-24 15:56:25,725 sample_balanced_articles.py:352 WARNING: Incomplete: BLB-1845 (ad=0, non-ad=2)
+2026-03-24 15:56:25,725 sample_balanced_articles.py:352 WARNING: Incomplete: EXP-1762 (ad=4, non-ad=0)
+2026-03-24 15:56:25,725 sample_balanced_articles.py:352 WARNING: Incomplete: EXP-1802 (ad=1, non-ad=0)
+2026-03-24 15:56:25,725 sample_balanced_articles.py:352 WARNING: Incomplete: EXP-1803 (ad=0, non-ad=1)
+2026-03-24 15:56:25,725 sample_balanced_articles.py:352 WARNING: Incomplete: EXP-1805 (ad=0, non-ad=1)
+2026-03-24 15:56:25,725 sample_balanced_articles.py:352 WARNING: Incomplete: EXP-1813 (ad=0, non-ad=3)
+2026-03-24 15:56:25,725 sample_balanced_articles.py:352 WARNING: Incomplete: FedGazFr-1999 (ad=0, non-ad=14)
+2026-03-24 15:56:25,725 sample_balanced_articles.py:352 WARNING: Incomplete: VHT-1904 (ad=0, non-ad=5)
+2026-03-24 15:56:25,725 sample_balanced_articles.py:352 WARNING: Incomplete: actionfem-1940 (ad=0, non-ad=4)
+2026-03-24 15:56:25,725 sample_balanced_articles.py:352 WARNING: Incomplete: onsjongen-1944 (ad=0, non-ad=31)
+2026-03-24 15:56:25,725 sample_balanced_articles.py:352 WARNING: Incomplete: onsjongen-1951 (ad=0, non-ad=6)
