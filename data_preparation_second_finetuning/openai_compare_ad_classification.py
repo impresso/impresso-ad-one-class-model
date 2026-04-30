@@ -20,7 +20,7 @@ import logging
 import os
 import sys
 import time
-from typing import Any, Dict, Iterable, Optional, Tuple
+from typing import Any, Dict, Iterable, Optional, Set, Tuple
 
 import requests
 from dotenv import load_dotenv
@@ -43,7 +43,7 @@ LOG = logging.getLogger(__name__)
 
 load_dotenv()
 
-DEFAULT_MODEL = "gpt-4o"
+DEFAULT_MODEL = "gpt-5.4-mini"
 DEFAULT_BASE_URL = "https://api.openai.com/v1"
 DEFAULT_OUTPUT_KEY = "openai_classification"
 RETRYABLE_STATUS_CODES = {408, 409, 429, 500, 502, 503, 504}
@@ -137,6 +137,16 @@ def parse_args() -> argparse.Namespace:
         help="Maximum retries per OpenAI request (default: 5)",
     )
     parser.add_argument(
+        "--stop-on-error",
+        action="store_true",
+        help="Abort the whole run on a row that still fails after retries.",
+    )
+    parser.add_argument(
+        "--overwrite-output",
+        action="store_true",
+        help="Start fresh by truncating existing agree/disagree output files.",
+    )
+    parser.add_argument(
         "--log-level",
         default="INFO",
         choices=["DEBUG", "INFO", "WARNING", "ERROR"],
@@ -198,6 +208,38 @@ def iter_jsonl(path: str) -> Iterable[Tuple[int, Dict[str, Any]]]:
 
 def write_jsonl_row(handle, row: Dict[str, Any]) -> None:
     handle.write(json.dumps(row, ensure_ascii=False) + "\n")
+    handle.flush()
+
+
+def load_processed_ids(*paths: str, id_key: str = "id") -> Set[str]:
+    processed_ids: Set[str] = set()
+
+    for path in paths:
+        transport_params = get_transport_params(path)
+        try:
+            with smart_open(path, "r", encoding="utf-8", transport_params=transport_params) as handle:
+                for line_no, line in enumerate(handle, start=1):
+                    stripped = line.strip()
+                    if not stripped:
+                        continue
+                    try:
+                        row = json.loads(stripped)
+                    except json.JSONDecodeError as exc:
+                        LOG.warning("Skipping invalid JSON in existing output %s:%s: %s", path, line_no, exc)
+                        continue
+
+                    row_id = row.get(id_key)
+                    if not isinstance(row_id, str) or not row_id.strip():
+                        LOG.warning("Skipping existing output row without valid %s at %s:%s", id_key, path, line_no)
+                        continue
+
+                    processed_ids.add(row_id)
+        except FileNotFoundError:
+            continue
+        except OSError as exc:
+            LOG.warning("Could not read existing output %s: %s", path, exc)
+
+    return processed_ids
 
 
 def add_field_after(
@@ -344,11 +386,19 @@ def main() -> None:
     ensure_local_parent(agree_output)
     ensure_local_parent(disagree_output)
 
+    processed_ids: Set[str] = set()
+    if not args.overwrite_output:
+        processed_ids = load_processed_ids(agree_output, disagree_output)
+        if processed_ids:
+            LOG.info("Loaded %s already-processed ids from existing outputs.", len(processed_ids))
+
     stats = {
         "lines_seen": 0,
         "valid_rows_processed": 0,
         "agree": 0,
         "disagree": 0,
+        "classification_failures": 0,
+        "skipped_already_processed": 0,
         "skipped_missing_text": 0,
         "skipped_invalid_label": 0,
     }
@@ -356,20 +406,26 @@ def main() -> None:
     with requests.Session() as session:
         agree_transport = get_transport_params(agree_output)
         disagree_transport = get_transport_params(disagree_output)
+        output_mode = "w" if args.overwrite_output else "a"
 
         with smart_open(
             agree_output,
-            "w",
+            output_mode,
             encoding="utf-8",
             transport_params=agree_transport,
         ) as agree_handle, smart_open(
             disagree_output,
-            "w",
+            output_mode,
             encoding="utf-8",
             transport_params=disagree_transport,
         ) as disagree_handle:
             for line_no, row in iter_jsonl(args.input_file):
                 stats["lines_seen"] += 1
+
+                row_id = row.get("id")
+                if isinstance(row_id, str) and row_id in processed_ids:
+                    stats["skipped_already_processed"] += 1
+                    continue
 
                 local_label = normalize_label(row.get(args.label_key))
                 if local_label is None:
@@ -392,15 +448,27 @@ def main() -> None:
                     )
                     continue
 
-                openai_label = classify_text(
-                    session=session,
-                    api_key=api_key,
-                    base_url=args.base_url,
-                    model=args.model,
-                    text=ft.strip(),
-                    request_timeout=args.request_timeout,
-                    max_retries=args.max_retries,
-                )
+                try:
+                    openai_label = classify_text(
+                        session=session,
+                        api_key=api_key,
+                        base_url=args.base_url,
+                        model=args.model,
+                        text=ft.strip(),
+                        request_timeout=args.request_timeout,
+                        max_retries=args.max_retries,
+                    )
+                except RuntimeError as exc:
+                    stats["classification_failures"] += 1
+                    LOG.error(
+                        "Classification failed for line %s id=%r: %s",
+                        line_no,
+                        row.get("id"),
+                        exc,
+                    )
+                    if args.stop_on_error:
+                        raise
+                    continue
 
                 stats["valid_rows_processed"] += 1
                 if openai_label == local_label:
@@ -415,13 +483,17 @@ def main() -> None:
                     )
                     write_jsonl_row(disagree_handle, disagree_row)
                     stats["disagree"] += 1
+                if isinstance(row_id, str) and row_id:
+                    processed_ids.add(row_id)
 
                 if stats["valid_rows_processed"] % args.progress_every == 0:
                     LOG.info(
-                        "Processed %s valid rows: agree=%s disagree=%s",
+                        "Processed %s new valid rows: agree=%s disagree=%s classification_failures=%s skipped_already_processed=%s",
                         stats["valid_rows_processed"],
                         stats["agree"],
                         stats["disagree"],
+                        stats["classification_failures"],
+                        stats["skipped_already_processed"],
                     )
 
                 if args.max_rows is not None and stats["valid_rows_processed"] >= args.max_rows:
@@ -437,6 +509,8 @@ def main() -> None:
     LOG.info("Valid rows processed: %s", stats["valid_rows_processed"])
     LOG.info("Agree: %s", stats["agree"])
     LOG.info("Disagree: %s", stats["disagree"])
+    LOG.info("Classification failures: %s", stats["classification_failures"])
+    LOG.info("Skipped already processed: %s", stats["skipped_already_processed"])
     LOG.info("Skipped invalid labels: %s", stats["skipped_invalid_label"])
     LOG.info("Skipped missing/empty texts: %s", stats["skipped_missing_text"])
 
