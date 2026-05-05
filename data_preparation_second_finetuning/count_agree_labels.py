@@ -9,8 +9,8 @@ DEFAULT_INPUT = "data_preparation_second_finetuning/finetuning-2-ads-nonads.json
 
 def main():
     parser = argparse.ArgumentParser(description="Count ad/non-ad labels in a JSONL file.")
-    parser.add_argument("input_file", nargs="?", default=DEFAULT_INPUT)
-    parser.add_argument("--label-key", default="ad_classification")
+    parser.add_argument("--input_file", nargs="?", default=DEFAULT_INPUT)
+    parser.add_argument("--label-key", default="type")
     args = parser.parse_args()
 
     counts = Counter()

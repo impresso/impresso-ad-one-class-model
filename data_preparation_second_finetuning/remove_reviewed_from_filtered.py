@@ -3,8 +3,9 @@
 
 Example:
 python data_preparation_second_finetuning/remove_reviewed_from_filtered.py \
-  data_preparation_second_finetuning/ads-nonads_inspection_sample_ft_disagree_filtered.jsonl \
-  data_preparation_second_finetuning/ads-nonads_inspection_sample_ft_disagree_filtered_sampled_300.jsonl
+  data_preparation_second_finetuning/ads-nonads_inspection_sample_ft_disagree_filtered_remaining.jsonl \
+  data_preparation_second_finetuning/ads-nonads_inspection_sample_ft_disagree_filtered_remaining_sampled_550.jsonl
+
 """
 
 import argparse

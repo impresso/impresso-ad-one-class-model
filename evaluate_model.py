@@ -2,7 +2,7 @@
 Evaluation script for the ad classification model.
 
 Usage:
-python evaluate_model.py --true_ads ads_120_for_testing.jsonl --true_non_ads non_ads_120_for_testing.jsonl --output_csv results.csv
+python evaluate_model.py --true_ads fine-tuning-data/ads_100_for_testing.jsonl --true_non_ads fine-tuning-data/non_ads_100_for_testing.jsonl --output_csv results.csv
 
 This script will:
 1. Combine true ads and non-ads into a test dataset

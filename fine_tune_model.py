@@ -4,7 +4,7 @@ Uses One-vs-Rest approach: enhances the Promotion class detection while preservi
 the model's multi-class genre classification capabilities.
 
 Usage:
-python fine_tune_xgenre.py \
+python fine_tune_model.py \
     --ads ads_5000.jsonl \
     --non_ads non_ads_5000.jsonl \
     --output_dir ./ovr_promo_ft \
@@ -267,6 +267,8 @@ def main():
         "report_to": "none",
         "push_to_hub": False,
     }
+    if hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
+        training_args_dict["use_mps_device"] = True
     
     # Add evaluation and save strategy (parameter names vary by version)
     try:
@@ -289,11 +291,10 @@ def main():
     if torch.cuda.is_available():
         training_args.fp16 = True
     
-    # For Apple Silicon (MPS), ensure we don't use fp16 and print memory warning
+    # For Apple Silicon (MPS), ensure we don't use fp16 and move the model to MPS
     if hasattr(torch.backends, 'mps') and torch.backends.mps.is_available():
-        print("\n⚠️  Detected Apple Silicon (MPS). Using CPU fallback for stability.")
-        print("   MPS can have memory issues with large models. Training will use CPU.")
-        device = torch.device("cpu")
+        print("\nDetected Apple Silicon (MPS). Training will use MPS.")
+        device = torch.device("mps")
         model = model.to(device)
     
     # Create trainer with custom metrics
