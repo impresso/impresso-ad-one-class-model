@@ -140,7 +140,7 @@ python model_pushing.py   # prompts for an HF token; tag the release on the Hub 
 
 ## Where the data came from
 
-### v1 data (Sep–Oct 2025)
+### v1 data (Sep-Oct 2025)
 
 - **Ads**: content items already labelled as ads in impresso. IDs were sampled, then text was fetched from S3 with [`helper_scripts_for_data_preparation/s3_compiler.py`](helper_scripts_for_data_preparation/s3_compiler.py) and cleaned (length and OCR-quality filters) with [`clean_jsonl.py`](helper_scripts_for_data_preparation/clean_jsonl.py).
 - **Non-ads**: impresso has no "non-ad" label. Articles were sampled from topic-model topics that are typically non-ad (topics were tagged by GPT and DeepSeek, see `cleaning_topics/` in git history before `b8c837c`). The small tuning and test sets were annotated by hand.
@@ -148,7 +148,7 @@ python model_pushing.py   # prompts for an HF token; tag the release on the Hub 
 - 72 rows in `v1/ads_3725_finetuning.jsonl` still carry `"type": "non-ad"`. They are non-ads that turned out to be ads during CV cleaning and were moved to the ads file without updating the field. Training uses the file, not the field, so v1 learned them as ads.
 - The v1 tuning set (200 + 200): the ads are the original 100 tuning ads plus all 100 test ads. The non-ads are a different selection (only 2 from the original tuning set, 16 from the test set). Together with 77 test non-ads in the training set, this is why the shared test set isn't held out for v1.
 
-### v2 data (Mar–May 2026)
+### v2 data (Mar-May 2026)
 
 Goal: more data and broader coverage across newspapers and years, with labels checked by an LLM and a human. Scripts and every intermediate file are in [`data_preparation_second_finetuning/`](data_preparation_second_finetuning/):
 
