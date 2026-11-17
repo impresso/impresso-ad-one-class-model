@@ -23,8 +23,8 @@ pipe("Appartement 3 pièces à louer, Fr. 2'100.–, tél. 079 ...")
 | Training data | 3725 ads + 3725 non-ads: [`fine-tuning-data/v1/`](fine-tuning-data/v1/) | 8623 ads + 8623 non-ads: [`fine-tuning-data/v2/`](fine-tuning-data/v2/) |
 | Train / val split (internal, 85/15) | 6332 / 1118 | 14659 / 2587 |
 | Training | 5 epochs, lr 2e-5, batch 16 | 5 epochs, lr 1.5e-5, batch 16 |
-| Inference params | [`cross-validation-cleaning/best_params/best_params_final.json`](cross-validation-cleaning/best_params/best_params_final.json) | [`best_params.json`](best_params.json) |
 | Tuning set | 200 + 200: [`fine-tuning-data/v1/*_200_for_hyperparameters.jsonl`](fine-tuning-data/v1/) | 300 + 300: [`fine-tuning-data/v2/*_300_for_hyperparameters.jsonl`](fine-tuning-data/v2/) |
+| Inference params | [`cross-validation-cleaning/best_params/best_params_final.json`](cross-validation-cleaning/best_params/best_params_final.json) | [`best_params.json`](best_params.json) |
 | Macro-F1 on tuning set | 0.945 (P_ad 0.93, R_ad 0.965) | 0.912 (P_ad 0.95, R_ad 0.87) |
 | **Held-out test set** (100 + 100) | none: v1 was evaluated with 4-fold CV, and the test set overlaps v1's train/tuning data | **accuracy 0.88, macro-F1 0.88**: ads P 0.975 / R 0.78 / F1 0.87, non-ads P 0.82 / R 0.98 / F1 0.89 |
 | How the data was built | [v1 data](#v1-data-sep-oct-2025) | [v2 data](#v2-data-mar-may-2026) |
