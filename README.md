@@ -38,11 +38,11 @@ The macro-F1 numbers are measured on *different* tuning sets, so they can't be c
 2. **Inference** ([`model_approach.py`](model_approach.py) for CLI and research; [`pipeline.py`](pipeline.py) is the same logic packaged as a HF custom pipeline):
    - normalise text, optionally split into `chunk_words` chunks
    - pool chunk logits (`max`, `mean`, `logits_max`, `logits_mean`, `logits_weighted`), apply `temperature`
-   - take P(`Promotion`) and compare it with a per-language threshold (`lang_thresholds`, fallback `ad_threshold`). Short texts (< `short_len` words) get `short_bonus` subtracted from the threshold.
+   - take P(`Promotion`) and compare it with a per-language threshold (`lang_thresholds`, fallback `ad_threshold`). Short texts (≤ `short_len` words) get `short_bonus` subtracted from the threshold.
    - the threshold and score are then nudged by rules. Rule hits (price, phone, ad cues, m², rooms, address, ZIP, year, km) lower the threshold. Signs of news, obituaries, official or legal text, or events raise the bar.
 3. **Tuning** ([`optimize_hyperparams.py`](optimize_hyperparams.py)): caches logits once, searches up to `--max_configs` parameter combinations on the tuning set, re-validates the finalists by running `model_approach.py`, and writes `best_params.json` plus `optimization_log.json`.
 
-Longer write-ups (from the v1 period, method still accurate): [classification system](ad-classification-doc.html) · [fine-tuning](finetuning_doc.html).
+Details: [docs/how-ad-classification-works.md](docs/how-ad-classification-works.md) (inference, rules, tuning) · [docs/how-the-model-is-fine-tuned.md](docs/how-the-model-is-fine-tuned.md) (training).
 
 ---
 
@@ -61,6 +61,7 @@ fine-tuning-data/                    v2 train / tune / test splits (current)
 data_preparation_second_finetuning/  how the v2 data was built (LLM + human relabelling)
 cross-validation-cleaning/           v1 4-fold CV: scripts + per-fold best params (fold data is local only)
 helper_scripts_for_data_preparation/ v1 data collection: S3 text fetch, cleaning, sampling
+docs/                                how classification and fine-tuning work
 cookbook/                            git submodule: impresso-make-cookbook (S3 helpers, Makefile includes)
 ```
 
@@ -87,7 +88,7 @@ One JSON object per line. Only `ft` is required for inference. For training and 
 {"id": "IMP-1978-10-12-a-i0288", "lg": "fr", "ft": "A LOUER ...", "type": "ad"}
 ```
 
-`id` is the impresso content-item id (`<newspaper>-<YYYY-MM-DD>-<edition>-i<NNNN>`). `lg` may be `null`; anything that isn't `fr` falls back to the `other` threshold. Article link: `https://impresso-project.ch/app/article/<id>`.
+`id` is the impresso content-item id (`<newspaper>-<YYYY-MM-DD>-<edition>-i<NNNN>`). `lg` may be `null`; with the v2 params anything that isn't `fr` uses `ad_threshold` (0.9612). Article link: `https://impresso-project.ch/app/article/<id>`.
 
 Keep the splits disjoint. In the current data, train, tuning and test share 0 ids.
 
