@@ -26,9 +26,19 @@ pipe("Appartement 3 pièces à louer, Fr. 2'100.–, tél. 079 ...")
 | Inference params | [`cross-validation-cleaning/best_params/best_params_final.json`](cross-validation-cleaning/best_params/best_params_final.json) | [`best_params.json`](best_params.json) |
 | Tuning set | 200 + 200 | 300 + 300: [`fine-tuning-data/*_300_for_hyperparameters.jsonl`](fine-tuning-data/) |
 | Macro-F1 on tuning set | 0.945 (P_ad 0.93, R_ad 0.965) | 0.912 (P_ad 0.95, R_ad 0.87) |
+| **Held-out test set** (100 + 100) | not recorded | **accuracy 0.88, macro-F1 0.88**: ads P 0.975 / R 0.78 / F1 0.87, non-ads P 0.82 / R 0.98 / F1 0.89 |
 | How the data was built | [v1 data](#v1-data-sep-oct-2025) | [v2 data](#v2-data-mar-may-2026) |
 
-The macro-F1 numbers are measured on *different* tuning sets, so they can't be compared directly. Both versions share the same held-out test set (`fine-tuning-data/*_100_for_testing.jsonl`, 100 + 100). That set is the fair place to compare them, but no v2 test-set result is recorded in the repo yet.
+The tuning-set numbers can't be compared across versions because the tuning sets differ, and they're optimistic, since the parameters were chosen on that data. The **test set** (`fine-tuning-data/*_100_for_testing.jsonl`) is shared by both versions and was never used for training or tuning.
+
+v2 test result (run 2026-11-17, `evaluate_model.py` with `best_params.json`, model = HF `v2.0`). Confusion matrix:
+
+| | predicted non-ad | predicted ad |
+|---|---|---|
+| **actual non-ad** | 98 | 2 |
+| **actual ad** | 22 | 78 |
+
+v2 is conservative: almost no false alarms, but it misses about 1 in 5 ads. The per-item predictions were written to `results/` (gitignored); rerun step 3 of the workflow to regenerate them. v1 has not been scored on this test set.
 
 ---
 
@@ -159,7 +169,7 @@ The tuning set grew from 100 + 100 to 300 + 300; the original 100 are included. 
 ## Known issues and loose ends
 
 - **Hub `pipeline.py` defaults are a mix of v1 and v2.** The published v2 `pipeline.py` uses v2's thresholds (`ad_threshold 0.9612`, `fr:0.8124, other:0.9570`). But it kept v1's `pool=logits_max`, `temperature=0.8`, `chunk_words=0`, `short_len=30`, while v2's tuning chose `logits_mean`, `1.2`, `200`, `50` ([`best_params.json`](best_params.json)). Thresholds tuned under one pooling and temperature setup aren't calibrated for another, so check this on the test set and republish if needed. The repo's `pipeline.py` mirrors the Hub as-is.
-- **No v2 test-set evaluation is recorded.** Run step 3 above and add the numbers to the version table.
+- **v2 recall on the test set is 0.78** (22 of 100 ads missed, 2 false alarms). If recall matters more, lower the thresholds in `best_params.json`, re-evaluate, and look at the missed ads in `results/v2_test_ads_predictions.jsonl`.
 - **Origin of 2730 v2 ads is undocumented.** They aren't in the v1 set, the relabelling output, or any earlier file in git history. Most likely a fresh sample of impresso ads added to balance the classes.
 - `sample_balanced_articles.py`, which made the initial v2 sample, isn't in the repo (its log is).
 - `openai_compare_ad_classification.py` looks for `cookbook/lib` *inside* `data_preparation_second_finetuning/`. It silently falls back to no S3 transport params, which is fine for local files.
