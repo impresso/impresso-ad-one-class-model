@@ -41,7 +41,7 @@ The separate tuning set (300 + 300) and test set (100 + 100) are **not** used he
 
 | Setting | Script default | **v2 run** |
 |---|---|---|
-| epochs (max) | 3 | **5** |
+| epochs (max) | 3 | **5** (early-stopped at 2.0; best checkpoint at 1.3) |
 | learning rate | 2e-5 | **1.5e-5** |
 | batch size (eval = 2×) | 16 | 16 |
 | warmup ratio | 0.1 | 0.1 |

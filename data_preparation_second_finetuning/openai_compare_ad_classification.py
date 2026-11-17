@@ -28,7 +28,7 @@ from smart_open import open as smart_open
 
 
 CURRENT_DIR = os.path.dirname(os.path.abspath(__file__))
-COOKBOOK_LIB_DIR = os.path.join(CURRENT_DIR, "cookbook", "lib")
+COOKBOOK_LIB_DIR = os.path.join(os.path.dirname(CURRENT_DIR), "cookbook", "lib")
 if COOKBOOK_LIB_DIR not in sys.path:
     sys.path.insert(0, COOKBOOK_LIB_DIR)
 

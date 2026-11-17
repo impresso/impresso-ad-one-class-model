@@ -22,7 +22,7 @@ pipe("Appartement 3 pièces à louer, Fr. 2'100.–, tél. 079 ...")
 |---|---|---|
 | Training data | 3725 ads + 3725 non-ads: [`fine-tuning-data/v1/`](fine-tuning-data/v1/) | 8623 ads + 8623 non-ads: [`fine-tuning-data/v2/`](fine-tuning-data/v2/) |
 | Train / val split (internal, 85/15) | 6332 / 1118 | 14659 / 2587 |
-| Training | 5 epochs, lr 2e-5, batch 16 | 5 epochs, lr 1.5e-5, batch 16 |
+| Training | max 5 epochs, lr 2e-5, batch 16; ran all 5, best checkpoint at epoch 4.6 (val F1 0.971) | max 5 epochs, lr 1.5e-5, batch 16; early-stopped at epoch 2.0, best checkpoint at epoch 1.3 (val F1 0.907). Logs: [`training-logs/`](training-logs/) |
 | Tuning set | 200 + 200: [`fine-tuning-data/v1/*_200_for_hyperparameters.jsonl`](fine-tuning-data/v1/) | 300 + 300: [`fine-tuning-data/v2/*_300_for_hyperparameters.jsonl`](fine-tuning-data/v2/) |
 | Inference params | [`cross-validation-cleaning/best_params/best_params_final.json`](cross-validation-cleaning/best_params/best_params_final.json) | [`best_params.json`](best_params.json) |
 | Macro-F1 on tuning set | 0.945 (P_ad 0.93, R_ad 0.965) | 0.912 (P_ad 0.95, R_ad 0.87) |
@@ -71,7 +71,8 @@ fine-tuning-data/v2/                 v2 train / tune / test splits (current)
 fine-tuning-data/v1/                 v1 train / tune data (exactly what v1.0 was trained and tuned on)
 data_preparation_second_finetuning/  how the v2 data was built (LLM + human relabelling)
 cross-validation-cleaning/           v1 4-fold CV: scripts + per-fold best params (fold data is local only)
-helper_scripts_for_data_preparation/ v1 data collection: S3 text fetch, cleaning, sampling
+helper_scripts_for_data_preparation/ v1 data collection: S3 text fetch, cleaning, sampling, topic filtering
+training-logs/v1, v2/                trainer_state.json (loss / eval history) + training_info.json of the published models
 docs/                                how classification and fine-tuning work
 cookbook/                            git submodule: impresso-make-cookbook (S3 helpers, Makefile includes)
 ```
@@ -143,27 +144,38 @@ python model_pushing.py   # prompts for an HF token; tag the release on the Hub 
 ### v1 data (Sep-Oct 2025)
 
 - **Ads**: content items already labelled as ads in impresso. IDs were sampled, then text was fetched from S3 with [`helper_scripts_for_data_preparation/s3_compiler.py`](helper_scripts_for_data_preparation/s3_compiler.py) and cleaned (length and OCR-quality filters) with [`clean_jsonl.py`](helper_scripts_for_data_preparation/clean_jsonl.py).
-- **Non-ads**: impresso has no "non-ad" label. Articles were sampled from topic-model topics that are typically non-ad (topics were tagged by GPT and DeepSeek, see `cleaning_topics/` in git history before `b8c837c`). The small tuning and test sets were annotated by hand.
+- **Non-ads**: impresso has no "non-ad" label. Articles were sampled from topic-model topics that are typically non-ad. The topics were tagged by GPT and DeepSeek (see `cleaning_topics/` in git history before `b8c837c`). Articles were pulled from the S3 topic output with [`s3_multi_prefix_runner.py`](helper_scripts_for_data_preparation/s3_multi_prefix_runner.py) and the jq filter [`topics_non_ads_filter.jq`](helper_scripts_for_data_preparation/topics_non_ads_filter.jq). The small tuning and test sets were annotated by hand.
 - **Cleaning via 4-fold CV** ([`cross-validation-cleaning/`](cross-validation-cleaning/)): the 3800 + 3800 set was split into 4 folds. A model was trained on 3 folds and predicted the 4th. Disagreements were inspected via article URLs ([`split_jsonl_agreement.py`](cross-validation-cleaning/split_jsonl_agreement.py), [`jsonl2url.py`](cross-validation-cleaning/jsonl2url.py)) and mislabelled items removed, leaving 3725 + 3725. That cleaned set trained v1.0. It is saved as [`fine-tuning-data/v1/`](fine-tuning-data/v1/) (originally `cross-validation-cleaning/all_ads.jsonl` / `all_non_ads.jsonl` / `*_hyperparameters.jsonl`).
 - 72 rows in `v1/ads_3725_finetuning.jsonl` still carry `"type": "non-ad"`. They are non-ads that turned out to be ads during CV cleaning and were moved to the ads file without updating the field. Training uses the file, not the field, so v1 learned them as ads.
 - The v1 tuning set (200 + 200): the ads are the original 100 tuning ads plus all 100 test ads. The non-ads are a different selection (only 2 from the original tuning set, 16 from the test set). Together with 77 test non-ads in the training set, this is why the shared test set isn't held out for v1.
 
 ### v2 data (Mar-May 2026)
 
-Goal: more data and broader coverage across newspapers and years, with labels checked by an LLM and a human. Scripts and every intermediate file are in [`data_preparation_second_finetuning/`](data_preparation_second_finetuning/):
+Goal: more data and broader coverage across newspapers and years, with labels checked by an LLM and a human. All scripts are in [`data_preparation_second_finetuning/`](data_preparation_second_finetuning/). Intermediate files marked *(not kept)* are not in the repo; their contents end up in `fine-tuning-data/v2/`, and they can be regenerated with the listed script:
 
 | Step | Script | Output | Rows |
 |---|---|---|---|
-| Sample v1 model predictions from S3 (`content-item-classification-base-multilingual_v1-0-0`), 1 ad + 1 non-ad per newspaper-year | `sample_balanced_articles.py` (*not in repo*) | `ads-nonads_inspection_sample.jsonl` (+ `_log.txt`) | 11784 |
+| Sample v1 model predictions from S3 (`content-item-classification-base-multilingual_v1-0-0`), 1 ad + 1 non-ad per newspaper-year | `sample_balanced_articles.py` (reservoir sampling, seed 42) | `ads-nonads_inspection_sample.jsonl` (+ `_log.txt`) | 11784 |
 | Attach text, drop empty or very short items | `filter_ft_jsonl.py` | `..._ft.jsonl` | 11184 |
 | Ask an OpenAI model (`gpt-5.4-mini`) for ad / non-ad; split by agreement with v1 | `openai_compare_ad_classification.py` | `..._ft_agree_all.jsonl` / `..._ft_disagree_all.jsonl` | 6715 / 4471 |
 | Filter the disagreements | `filter_ft_jsonl.py` | `..._disagree_filtered.jsonl` | 1732 |
 | Newspaper-balanced samples for human review (300, then 550 more from the rest) | `sample_balanced_by_newspaper.py`, `remove_reviewed_from_filtered.py` | `..._sampled_300.jsonl`, `..._remaining_sampled_550.jsonl` | 850 |
 | Export review sheet with article links, then convert back (rows marked "Unsure" dropped) | `export_sampled_jsonl_to_csv.py`, `clean_review_csv_to_jsonl.py` | `human_annotations.jsonl` (310 ad / 222 non-ad) | 532 |
-| Combine agreed and human-reviewed rows | | `finetuning-2-ads-nonads.jsonl` (git history, `db1e738`) | 7247 |
-| Merge with v1 data, balance classes | | `fine-tuning-data/v2/{ads,non_ads}_8623_finetuning.jsonl` | 8623 + 8623 |
+| Combine agreed and human-reviewed rows (2224 ad / 5023 non-ad) | `convert_finetuning_2_format.py` | `finetuning-2-ads-nonads.jsonl` (git history, `db1e738`) | 7247 |
+| Too few ads, so sample 1 random ad per newspaper-year from impresso's existing ad labels (`s3://122-rebuilt-final/`) | `sample_one_ad_per_newspaper_year.py` (seed 42) | `rebuilt_one_ad_per_newspaper_year.jsonl` *(not kept)* | 5589 |
+| Add 2800 of those ads that aren't already in the data | `sample_rebuilt_ads_into_new_data.py` | `new_data_all.jsonl` *(not kept)* | 10047 |
+| Drop rows already in the v1 train / tuning / test files | `deduplicate_new_data_all.py` | `new_data_all_deduplicated.jsonl` *(not kept)* | 10046 |
+| Split by class | `split_new_data_by_type.py` | `new_ads.jsonl` / `new_non_ads.jsonl` *(not kept)* | 5023 / 5023 |
+| Append the original 3800 + 3800 v1 training data (manual concatenation) | | `*_8823_finetuning.jsonl` (not kept) | 8823 + 8823 |
+| Move 200 random rows per class into the tuning set (100 → 300) | `move_ads_to_hyperparameters.py` | `fine-tuning-data/v2/{ads,non_ads}_8623_finetuning.jsonl`, `*_300_for_hyperparameters.jsonl` | 8623 + 8623 |
 
-Composition of the final set: **non-ads** = 3720 from the original (pre-CV-cleaning) 3800 set + 4903 from the relabelling. **Ads** = 3709 from the original 3800 set + 2184 from the relabelling + **2730 from a source not recorded in the repo** (see loose ends).
+A third human-review batch was prepared but never used. 540 of the 882 remaining disagreements were sampled into `..._remaining_remaining_sampled_540.jsonl` and exported as a review sheet ("Impresso Ad Classifier - ASsessment - 4"). The exported copy had no decisions in it, and none of these articles are in the v2 data. If it was annotated in Google Sheets, those answers aren't in the repo. To annotate it, re-export with `export_sampled_jsonl_to_csv.py`.
+
+Some script defaults (e.g. in `deduplicate_new_data_all.py`, `move_ads_to_hyperparameters.py`) point to files that sat next to the scripts at the time (`ads_3800_finetuning.jsonl`, `non_ads_8823_finetuning.jsonl`, …). Pass explicit paths when re-running them.
+
+Composition of the final set: **non-ads** = 3720 from the original (pre-CV-cleaning) 3800 set + 4903 from the relabelling. **Ads** = 3709 from the original 3800 set + 2184 from the relabelling + 2730 from impresso's existing ad labels. The rest of each source went to the tuning set.
+
+Note that v2 builds on the *original* 3800 + 3800, not on the CV-cleaned v1 set, so the v1 cleaning was undone. All 147 ads and 725 non-ads that v1 dropped are back in v2 (train or tuning). The 67 articles that v1 cleaning moved from non-ad to ad are labelled **non-ad** in v2 (see known issues). Many of the added impresso ads are very long (1433 of 5589 are over 10,000 characters, probably whole ad pages); training truncates them to 512 tokens.
 
 The tuning set grew from the original 100 + 100 to 300 + 300; the original 100 + 100 are included. The test set is the original 100 + 100 test set, unchanged.
 
@@ -173,9 +185,8 @@ The tuning set grew from the original 100 + 100 to 300 + 300; the original 100 +
 
 - **Hub `pipeline.py` defaults are a mix of v1 and v2.** The published v2 `pipeline.py` uses v2's thresholds (`ad_threshold 0.9612`, `fr:0.8124, other:0.9570`). But it kept v1's `pool=logits_max`, `temperature=0.8`, `chunk_words=0`, `short_len=30`, while v2's tuning chose `logits_mean`, `1.2`, `200`, `50` ([`best_params.json`](best_params.json)). Thresholds tuned under one pooling and temperature setup aren't calibrated for another, so check this on the test set and republish if needed. The repo's `pipeline.py` mirrors the Hub as-is.
 - **v2 recall on the test set is 0.78** (22 of 100 ads missed, 2 false alarms). If recall matters more, lower the thresholds in `best_params.json`, re-evaluate, and look at the missed ads in `results/v2_test_ads_predictions.jsonl`.
-- **Origin of 2730 v2 ads is undocumented.** They aren't in the v1 set, the relabelling output, or any earlier file in git history. Most likely a fresh sample of impresso ads added to balance the classes.
-- `sample_balanced_articles.py`, which made the initial v2 sample, isn't in the repo (its log is).
-- `openai_compare_ad_classification.py` looks for `cookbook/lib` *inside* `data_preparation_second_finetuning/`. It silently falls back to no S3 transport params, which is fine for local files.
+- **v2 lost the v1 label fixes.** v2 was built from the uncleaned 3800 + 3800 sets, so 67 articles that v1's CV cleaning identified as ads are labelled non-ad in v2. Another 147 ads and 725 non-ads that v1 had dropped are back. For a v3, start from `fine-tuning-data/v1/` instead of the original 3800 sets, or apply the same corrections to the v2 files.
+- **Third human-review batch (540 rows) was exported but not used.** See the v2 data section; it's ready-made extra data for a v3 if annotated.
 - `model_pushing.py` also uploads `best_params_final.json` *if it exists* (the pipeline would auto-load it). It is currently not shipped, so the defaults inside `pipeline.py` apply.
 - `helper_scripts_for_data_preparation/non_ads_3800.jsonl` is a v1 working file kept for reference.
 

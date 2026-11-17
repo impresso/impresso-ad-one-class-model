@@ -50,8 +50,6 @@ cross-validation-cleaning/*
 !cross-validation-cleaning/*.py
 !cross-validation-cleaning/best_params/
 
-# Human review sheets exported for annotation (CSV), keep only JSONL results
-data_preparation_second_finetuning/*.csv
 
 # evaluate_model.py prediction dumps
 ads_predictions.jsonl
