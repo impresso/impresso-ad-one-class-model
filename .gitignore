@@ -30,17 +30,29 @@ lib/*_myprocessing.py
 Makefile.myprocessing
 .DS_Store
 Pipfile.lock
-*/__pycache__output.jsonl
+__pycache__/
 output.jsonl
 
+# Local outputs
+models/
+results/
+artifacts/
+results.csv
+optimization_log.json
 
-fine_tuned_xlm
-fine_tuned_xlm_fold_1
-fine_tuned_xlm_fold_2
-fine_tuned_xlm_fold_3
-fine_tuned_xlm_fold_4
-.venv
+# Trained model directories (weights are published on the Hugging Face Hub)
+fine_tuned_xlm*/
+fine_tuned_ad_classification_xlm/
+ovr_promo_ft/
+
 # CV fold data stays local; scripts and per-fold best params are tracked
 cross-validation-cleaning/*
 !cross-validation-cleaning/*.py
 !cross-validation-cleaning/best_params/
+
+# Human review sheets exported for annotation (CSV), keep only JSONL results
+data_preparation_second_finetuning/*.csv
+
+# evaluate_model.py prediction dumps
+ads_predictions.jsonl
+non_ads_predictions.jsonl

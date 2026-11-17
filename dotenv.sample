@@ -1,6 +1,9 @@
 # Set the values accordingly
 # store as `.env` file
+# S3 (impresso SE) credentials, used by s3_compiler.py / cookbook
 SE_ACCESS_KEY=<YOUR VALUE>
 SE_SECRET_KEY=<YOUR VALUE>
 # create python venv inside the project
 PIPENV_VENV_IN_PROJECT=enabled
+# used by data_preparation_second_finetuning/openai_compare_ad_classification.py
+OPENAI_API_KEY=<YOUR VALUE>

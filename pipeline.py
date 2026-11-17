@@ -18,8 +18,8 @@ _DEFAULTS = {
     "min_words": 0,
     "chunk_words": 0,
     "max_length": 512,
-    "ad_threshold": 0.9991338849067688,
-    "lang_thresholds": "other:0.9991,fr:0.0755",
+    "ad_threshold": 0.961243212223053,
+    "lang_thresholds": "other:0.9570,fr:0.8124",
 }
 # allow overriding by shipping best_params_final.json in the repo
 try:

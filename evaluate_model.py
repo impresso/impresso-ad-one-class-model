@@ -1,25 +1,27 @@
 """
 Evaluation script for the ad classification model.
 
-Usage:
+Usage (v2 data, model + inference params taken from best_params.json):
+python evaluate_model.py \
+    --true_ads fine-tuning-data/ads_100_for_testing.jsonl \
+    --true_non_ads fine-tuning-data/non_ads_100_for_testing.jsonl \
+    --best_params best_params.json
+
+v1 cross-validation fold (data lives locally in cross-validation-cleaning/):
 python evaluate_model.py \
     --true_ads cross-validation-cleaning/ads_fold_1_testing.jsonl \
     --true_non_ads cross-validation-cleaning/non_ads_fold_1_testing.jsonl \
     --ads_predictions cross-validation-cleaning/predictions/ads-fold-1-predictions.jsonl \
     --non_ads_predictions cross-validation-cleaning/predictions/non-ads-fold-1-predictions.jsonl \
-    --best_params cross-validation-cleaning/best_params/best_params_fold_1.json \
-    --model fine_tuned_xlm_fold_1
+    --best_params cross-validation-cleaning/best_params/best_params_fold_1.json
 
-
-Test:
-python evaluate_model.py --true_ads ads_100_for_testing.jsonl --true_non_ads non_ads_100_for_testing.jsonl --ads_predictions cross-validation-cleaning/ads-fold-1.jsonl --non_ads_predictions cross-validation-cleaning/non-ads-fold-1.jsonl --best_params cross-validation-cleaning/best_params/best_params_fold_1.json
-
+Note: the model that is evaluated is best_params["model"]; --model is not used.
 
 This script will:
 1. Combine true ads and non-ads into a test dataset
 2. Run model_approach.py with best parameters from best_params.json
 3. Calculate and display accuracy metrics and confusion matrix
-4. Create a JSONL file with detailed results (excluding correctly classified ads)
+4. Write per-item predictions to --ads_predictions / --non_ads_predictions (JSONL)
 """
 
 import argparse
@@ -236,11 +238,11 @@ def main():
     parser = argparse.ArgumentParser(description='Evaluate the model')
     parser.add_argument('--true_ads', required=True, help='JSONL file with true ads')
     parser.add_argument('--true_non_ads', required=True, help='JSONL file with true non-ads')
-    parser.add_argument('--ads_predictions', default='cross-validation-cleaning/ads_fold_1_predictions.jsonl', help='Ads predictions JSONL output file')
-    parser.add_argument('--non_ads_predictions', default='cross-validation-cleaning/non_ads_fold_1_predictions.jsonl', help='Non-ads predictions JSONL output file')
+    parser.add_argument('--ads_predictions', default='ads_predictions.jsonl', help='Ads predictions JSONL output file')
+    parser.add_argument('--non_ads_predictions', default='non_ads_predictions.jsonl', help='Non-ads predictions JSONL output file')
     # parser.add_argument('--output_csv', default='predictions.csv', help='CSV output file for predictions')
     parser.add_argument('--best_params', default='best_params.json', help='JSON file with best parameters')
-    parser.add_argument('--model', default='fine_tuned_xlm_fold_1', help='HF model id')
+    parser.add_argument('--model', default='fine_tuned_xlm_2', help='Unused: the model is read from best_params["model"]')
 
     args = parser.parse_args()
     

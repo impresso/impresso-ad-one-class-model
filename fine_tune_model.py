@@ -3,15 +3,14 @@ Fine-tune xlm-roberta-base-multilingual-text-genre-classifier for ad detection.
 Uses One-vs-Rest approach: enhances the Promotion class detection while preserving
 the model's multi-class genre classification capabilities.
 
-Usage:
+Usage (v2 model, as published on the HF Hub as v2.0):
 python fine_tune_model.py \
-    --ads ads_3800_finetuning.jsonl \
-    --non_ads non_ads_3800_finetuning.jsonl \
-    --output_dir ./fine_tuned_xlm \
-    --epochs 3 \
+    --ads fine-tuning-data/ads_8623_finetuning.jsonl \
+    --non_ads fine-tuning-data/non_ads_8623_finetuning.jsonl \
+    --output_dir ./fine_tuned_xlm_2 \
+    --epochs 5 \
     --batch_size 16 \
-    --learning_rate 2e-5
-
+    --learning_rate 1.5e-5
 
 Requirements:
 pip install transformers datasets torch scikit-learn
