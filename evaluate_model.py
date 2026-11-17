@@ -2,7 +2,7 @@
 Evaluation script for the ad classification model.
 
 Usage:
-python evaluate_model.py 
+python evaluate_model.py \
     --true_ads cross-validation-cleaning/ads_fold_1_testing.jsonl \
     --true_non_ads cross-validation-cleaning/non_ads_fold_1_testing.jsonl \
     --ads_predictions cross-validation-cleaning/predictions/ads-fold-1-predictions.jsonl \

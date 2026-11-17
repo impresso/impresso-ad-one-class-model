@@ -40,4 +40,7 @@ fine_tuned_xlm_fold_2
 fine_tuned_xlm_fold_3
 fine_tuned_xlm_fold_4
 .venv
-cross-validation-cleaning
+# CV fold data stays local; scripts and per-fold best params are tracked
+cross-validation-cleaning/*
+!cross-validation-cleaning/*.py
+!cross-validation-cleaning/best_params/

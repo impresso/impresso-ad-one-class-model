@@ -1,0 +1,49 @@
+{
+  "best_params": {
+    "pool": "logits_weighted",
+    "temperature": 0.8,
+    "short_bonus": 0.15,
+    "short_len": 40,
+    "min_words": 0,
+    "chunk_words": 200,
+    "max_length": 512,
+    "ad_threshold": 0.9559545516967773,
+    "lang_thresholds": "other:0.9760,fr:0.2555",
+    "model": "fine_tuned_xlm_fold_3"
+  },
+  "best_metrics": {
+    "macro_f1": 0.9549898727213624,
+    "balanced_accuracy": 0.955,
+    "mcc": 0.9104097766199728,
+    "precision_non_ad": 0.9690721649484536,
+    "recall_non_ad": 0.94,
+    "f1_non_ad": 0.9543147208121827,
+    "precision_ad": 0.941747572815534,
+    "recall_ad": 0.97,
+    "f1_ad": 0.9556650246305419,
+    "confusion_matrix": [
+      [
+        188,
+        12
+      ],
+      [
+        6,
+        194
+      ]
+    ],
+    "n_samples": 400,
+    "class_support": {
+      "non_ad": 200,
+      "ad": 200
+    }
+  },
+  "notes": {
+    "objective_metric": "macro_f1",
+    "dataset_info": {
+      "total_samples": 400,
+      "ads_count": 200,
+      "non_ads_count": 200
+    },
+    "optimization_method": "cached_search_with_model_approach_validation"
+  }
+}

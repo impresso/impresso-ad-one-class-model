@@ -12,6 +12,7 @@ python fine_tune_model.py \
     --batch_size 16 \
     --learning_rate 2e-5
 
+
 Requirements:
 pip install transformers datasets torch scikit-learn
 """

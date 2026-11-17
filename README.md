@@ -80,6 +80,16 @@ python fine_tune_xgenre.py \
   --epochs 3 \
   --batch_size 16 \
   --learning_rate 2e-5
+
+OR:
+
+python fine_tune_model.py \
+    --ads cross-validation-cleaning/ads_fold_1_finetuning.jsonl \
+    --non_ads cross-validation-cleaning/non_ads_fold_1_finetuning.jsonl \
+    --output_dir ./fine_tuned_xlm_fold_1 \
+    --epochs 3 \
+    --batch_size 16 \
+    --learning_rate 2e-5
 ```
 
 **Note:** Save the model to your specified `output_dir` - you'll need this path for the next steps.
@@ -100,6 +110,15 @@ python optimize_hyperparams.py \
   --non_ads non_ads_100_for_hyperparameters.jsonl \
   --output best_params.json \
   --max_configs 120
+
+OR:
+
+python optimize_hyperparams.py \
+  --ads cross-validation-cleaning/ads_hyperparameters.jsonl \
+  --non_ads cross-validation-cleaning/non_ads_hyperparameters.jsonl \
+  --output cross-validation-cleaning/best_params/best_params_fold_1.json \
+  --max_configs 120 \
+  --model fine_tuned_xlm_fold_1
 ```
 
 This will test up to 120 different configurations and save the best parameters.
@@ -113,6 +132,16 @@ python evaluate_model.py \
   --true_ads ads_100_for_testing.jsonl \
   --true_non_ads non_ads_100_for_testing.jsonl \
   --output_csv results.csv
+
+OR:
+
+python evaluate_model.py 
+    --true_ads cross-validation-cleaning/ads_fold_1_testing.jsonl \
+    --true_non_ads cross-validation-cleaning/non_ads_fold_1_testing.jsonl \
+    --ads_predictions cross-validation-cleaning/predictions/ads-fold-1-predictions.jsonl \
+    --non_ads_predictions cross-validation-cleaning/predictions/non-ads-fold-1-predictions.jsonl \
+    --best_params cross-validation-cleaning/best_params/best_params_fold_1.json \
+    --model fine_tuned_xlm_fold_1
 ```
 
 The script automatically uses the optimized parameters from `best_params.json`.
