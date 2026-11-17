@@ -5,8 +5,8 @@ the model's multi-class genre classification capabilities.
 
 Usage (v2 model, as published on the HF Hub as v2.0):
 python fine_tune_model.py \
-    --ads fine-tuning-data/ads_8623_finetuning.jsonl \
-    --non_ads fine-tuning-data/non_ads_8623_finetuning.jsonl \
+    --ads fine-tuning-data/v2/ads_8623_finetuning.jsonl \
+    --non_ads fine-tuning-data/v2/non_ads_8623_finetuning.jsonl \
     --output_dir ./fine_tuned_xlm_2 \
     --epochs 5 \
     --batch_size 16 \

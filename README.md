@@ -20,16 +20,16 @@ pipe("Appartement 3 pièces à louer, Fr. 2'100.–, tél. 079 ...")
 
 | | **v1.0** (Nov 2025) | **v2.0** (May 2026, current) |
 |---|---|---|
-| Training data | 3725 ads + 3725 non-ads (v1 3800 set after CV cleaning) | 8623 ads + 8623 non-ads: [`fine-tuning-data/`](fine-tuning-data/) |
+| Training data | 3725 ads + 3725 non-ads: [`fine-tuning-data/v1/`](fine-tuning-data/v1/) | 8623 ads + 8623 non-ads: [`fine-tuning-data/v2/`](fine-tuning-data/v2/) |
 | Train / val split (internal, 85/15) | 6332 / 1118 | 14659 / 2587 |
 | Training | 5 epochs, lr 2e-5, batch 16 | 5 epochs, lr 1.5e-5, batch 16 |
 | Inference params | [`cross-validation-cleaning/best_params/best_params_final.json`](cross-validation-cleaning/best_params/best_params_final.json) | [`best_params.json`](best_params.json) |
-| Tuning set | 200 + 200 | 300 + 300: [`fine-tuning-data/*_300_for_hyperparameters.jsonl`](fine-tuning-data/) |
+| Tuning set | 200 + 200: [`fine-tuning-data/v1/*_200_for_hyperparameters.jsonl`](fine-tuning-data/v1/) | 300 + 300: [`fine-tuning-data/v2/*_300_for_hyperparameters.jsonl`](fine-tuning-data/v2/) |
 | Macro-F1 on tuning set | 0.945 (P_ad 0.93, R_ad 0.965) | 0.912 (P_ad 0.95, R_ad 0.87) |
-| **Held-out test set** (100 + 100) | not recorded | **accuracy 0.88, macro-F1 0.88**: ads P 0.975 / R 0.78 / F1 0.87, non-ads P 0.82 / R 0.98 / F1 0.89 |
+| **Held-out test set** (100 + 100) | none: v1 was evaluated with 4-fold CV, and the test set overlaps v1's train/tuning data | **accuracy 0.88, macro-F1 0.88**: ads P 0.975 / R 0.78 / F1 0.87, non-ads P 0.82 / R 0.98 / F1 0.89 |
 | How the data was built | [v1 data](#v1-data-sep-oct-2025) | [v2 data](#v2-data-mar-may-2026) |
 
-The tuning-set numbers can't be compared across versions because the tuning sets differ, and they're optimistic, since the parameters were chosen on that data. The **test set** (`fine-tuning-data/*_100_for_testing.jsonl`) is shared by both versions and was never used for training or tuning.
+The tuning-set numbers can't be compared across versions because the tuning sets differ, and they're optimistic, since the parameters were chosen on that data. The **test set** (`fine-tuning-data/v2/*_100_for_testing.jsonl`) was never used for v2 training or tuning. It is **not** clean for v1: v1's tuning set contains all 100 test ads and 16 test non-ads, and v1's training set contains 77 test non-ads. So v1 can't be fairly scored on it, and there is no `v1/` test file.
 
 v2 test result (run 2026-11-17, `evaluate_model.py` with `best_params.json`, model = HF `v2.0`). Confusion matrix:
 
@@ -38,7 +38,7 @@ v2 test result (run 2026-11-17, `evaluate_model.py` with `best_params.json`, mod
 | **actual non-ad** | 98 | 2 |
 | **actual ad** | 22 | 78 |
 
-v2 is conservative: almost no false alarms, but it misses about 1 in 5 ads. The per-item predictions were written to `results/` (gitignored); rerun step 3 of the workflow to regenerate them. v1 has not been scored on this test set.
+v2 is conservative: almost no false alarms, but it misses about 1 in 5 ads. The per-item predictions were written to `results/` (gitignored); rerun step 3 of the workflow to regenerate them.
 
 ---
 
@@ -67,7 +67,8 @@ pipeline.py               HF custom pipeline (copy of what is on the Hub, v2 def
 model_pushing.py          4. upload a model dir + pipeline.py to the HF Hub
 best_params.json          v2 inference params (includes "model": "fine_tuned_xlm_2")
 
-fine-tuning-data/                    v2 train / tune / test splits (current)
+fine-tuning-data/v2/                 v2 train / tune / test splits (current)
+fine-tuning-data/v1/                 v1 train / tune data (exactly what v1.0 was trained and tuned on)
 data_preparation_second_finetuning/  how the v2 data was built (LLM + human relabelling)
 cross-validation-cleaning/           v1 4-fold CV: scripts + per-fold best params (fold data is local only)
 helper_scripts_for_data_preparation/ v1 data collection: S3 text fetch, cleaning, sampling
@@ -109,20 +110,20 @@ Keep the splits disjoint. In the current data, train, tuning and test share 0 id
 ```bash
 # 1. fine-tune -> ./fine_tuned_xlm_2
 python fine_tune_model.py \
-  --ads fine-tuning-data/ads_8623_finetuning.jsonl \
-  --non_ads fine-tuning-data/non_ads_8623_finetuning.jsonl \
+  --ads fine-tuning-data/v2/ads_8623_finetuning.jsonl \
+  --non_ads fine-tuning-data/v2/non_ads_8623_finetuning.jsonl \
   --output_dir ./fine_tuned_xlm_2 --epochs 5 --batch_size 16 --learning_rate 1.5e-5
 
 # 2. tune inference params -> best_params.json (+ optimization_log.json)
 python optimize_hyperparams.py \
-  --ads fine-tuning-data/ads_300_for_hyperparameters.jsonl \
-  --non_ads fine-tuning-data/non_ads_300_for_hyperparameters.jsonl \
+  --ads fine-tuning-data/v2/ads_300_for_hyperparameters.jsonl \
+  --non_ads fine-tuning-data/v2/non_ads_300_for_hyperparameters.jsonl \
   --model fine_tuned_xlm_2 --output best_params.json --max_configs 120
 
 # 3. evaluate on the untouched test set (the model is read from best_params["model"])
 python evaluate_model.py \
-  --true_ads fine-tuning-data/ads_100_for_testing.jsonl \
-  --true_non_ads fine-tuning-data/non_ads_100_for_testing.jsonl \
+  --true_ads fine-tuning-data/v2/ads_100_for_testing.jsonl \
+  --true_non_ads fine-tuning-data/v2/non_ads_100_for_testing.jsonl \
   --best_params best_params.json
 
 # ad-hoc inference on any JSONL
@@ -143,7 +144,9 @@ python model_pushing.py   # prompts for an HF token; tag the release on the Hub 
 
 - **Ads**: content items already labelled as ads in impresso. IDs were sampled, then text was fetched from S3 with [`helper_scripts_for_data_preparation/s3_compiler.py`](helper_scripts_for_data_preparation/s3_compiler.py) and cleaned (length and OCR-quality filters) with [`clean_jsonl.py`](helper_scripts_for_data_preparation/clean_jsonl.py).
 - **Non-ads**: impresso has no "non-ad" label. Articles were sampled from topic-model topics that are typically non-ad (topics were tagged by GPT and DeepSeek, see `cleaning_topics/` in git history before `b8c837c`). The small tuning and test sets were annotated by hand.
-- **Cleaning via 4-fold CV** ([`cross-validation-cleaning/`](cross-validation-cleaning/)): the 3800 + 3800 set was split into 4 folds. A model was trained on 3 folds and predicted the 4th. Disagreements were inspected via article URLs ([`split_jsonl_agreement.py`](cross-validation-cleaning/split_jsonl_agreement.py), [`jsonl2url.py`](cross-validation-cleaning/jsonl2url.py)) and mislabelled items removed, leaving 3725 + 3725. That cleaned set trained v1.0.
+- **Cleaning via 4-fold CV** ([`cross-validation-cleaning/`](cross-validation-cleaning/)): the 3800 + 3800 set was split into 4 folds. A model was trained on 3 folds and predicted the 4th. Disagreements were inspected via article URLs ([`split_jsonl_agreement.py`](cross-validation-cleaning/split_jsonl_agreement.py), [`jsonl2url.py`](cross-validation-cleaning/jsonl2url.py)) and mislabelled items removed, leaving 3725 + 3725. That cleaned set trained v1.0. It is saved as [`fine-tuning-data/v1/`](fine-tuning-data/v1/) (originally `cross-validation-cleaning/all_ads.jsonl` / `all_non_ads.jsonl` / `*_hyperparameters.jsonl`).
+- 72 rows in `v1/ads_3725_finetuning.jsonl` still carry `"type": "non-ad"`. They are non-ads that turned out to be ads during CV cleaning and were moved to the ads file without updating the field. Training uses the file, not the field, so v1 learned them as ads.
+- The v1 tuning set (200 + 200): the ads are the original 100 tuning ads plus all 100 test ads. The non-ads are a different selection (only 2 from the original tuning set, 16 from the test set). Together with 77 test non-ads in the training set, this is why the shared test set isn't held out for v1.
 
 ### v2 data (Mar–May 2026)
 
@@ -158,11 +161,11 @@ Goal: more data and broader coverage across newspapers and years, with labels ch
 | Newspaper-balanced samples for human review (300, then 550 more from the rest) | `sample_balanced_by_newspaper.py`, `remove_reviewed_from_filtered.py` | `..._sampled_300.jsonl`, `..._remaining_sampled_550.jsonl` | 850 |
 | Export review sheet with article links, then convert back (rows marked "Unsure" dropped) | `export_sampled_jsonl_to_csv.py`, `clean_review_csv_to_jsonl.py` | `human_annotations.jsonl` (310 ad / 222 non-ad) | 532 |
 | Combine agreed and human-reviewed rows | | `finetuning-2-ads-nonads.jsonl` (git history, `db1e738`) | 7247 |
-| Merge with v1 data, balance classes | | `fine-tuning-data/{ads,non_ads}_8623_finetuning.jsonl` | 8623 + 8623 |
+| Merge with v1 data, balance classes | | `fine-tuning-data/v2/{ads,non_ads}_8623_finetuning.jsonl` | 8623 + 8623 |
 
-Composition of the final set: **non-ads** = 3720 from v1 + 4903 from the relabelling. **Ads** = 3709 from v1 + 2184 from the relabelling + **2730 from a source not recorded in the repo** (see loose ends).
+Composition of the final set: **non-ads** = 3720 from the original (pre-CV-cleaning) 3800 set + 4903 from the relabelling. **Ads** = 3709 from the original 3800 set + 2184 from the relabelling + **2730 from a source not recorded in the repo** (see loose ends).
 
-The tuning set grew from 100 + 100 to 300 + 300; the original 100 are included. The test set is identical to v1's.
+The tuning set grew from the original 100 + 100 to 300 + 300; the original 100 + 100 are included. The test set is the original 100 + 100 test set, unchanged.
 
 ---
 

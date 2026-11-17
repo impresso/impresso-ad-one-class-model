@@ -5,8 +5,8 @@ Uses internal caching for speed during search, validates with model_approach.py.
 
 Usage:
 python optimize_hyperparams.py \
-  --ads fine-tuning-data/ads_300_for_hyperparameters.jsonl \
-  --non_ads fine-tuning-data/non_ads_300_for_hyperparameters.jsonl \
+  --ads fine-tuning-data/v2/ads_300_for_hyperparameters.jsonl \
+  --non_ads fine-tuning-data/v2/non_ads_300_for_hyperparameters.jsonl \
   --output best_params.json \
   --max_configs 120 \
   --model fine_tuned_xlm_2

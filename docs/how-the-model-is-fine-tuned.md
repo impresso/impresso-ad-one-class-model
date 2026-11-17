@@ -27,7 +27,7 @@ Two JSONL files, one with ads and one with non-ads. Only `ft` (text) is used. Th
 
 | | ads | non-ads |
 |---|---|---|
-| v2 training (`fine-tuning-data/*_8623_finetuning.jsonl`) | 8623 | 8623 |
+| v2 training (`fine-tuning-data/v2/*_8623_finetuning.jsonl`) | 8623 | 8623 |
 
 Steps:
 

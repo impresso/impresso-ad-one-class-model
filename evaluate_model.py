@@ -3,8 +3,8 @@ Evaluation script for the ad classification model.
 
 Usage (v2 data, model + inference params taken from best_params.json):
 python evaluate_model.py \
-    --true_ads fine-tuning-data/ads_100_for_testing.jsonl \
-    --true_non_ads fine-tuning-data/non_ads_100_for_testing.jsonl \
+    --true_ads fine-tuning-data/v2/ads_100_for_testing.jsonl \
+    --true_non_ads fine-tuning-data/v2/non_ads_100_for_testing.jsonl \
     --best_params best_params.json
 
 v1 cross-validation fold (data lives locally in cross-validation-cleaning/):
